@@ -8,7 +8,7 @@ interface Props {
   onChange: (data: AdData) => void;
 }
 
-const countChars = (str: string) => str.length;
+const countChars = (str: string) => [...str].length;
 
 const CharCount = ({ current, max }: { current: number; max: number }) => {
   const over = current > max;
