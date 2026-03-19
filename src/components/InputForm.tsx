@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import type { ChangeEvent } from "react";
 import type { AdData } from "../types";
-import { TITLE_MAX, LONG_TITLE_MAX, DESC_MAX } from "../types";
+import { TITLE_MAX, DESC_MAX } from "../types";
 
 interface Props {
   data: AdData;
@@ -181,22 +181,17 @@ export const InputForm = ({ data, onChange }: Props) => {
           <div>
             <label style={labelStyle}>
               <span>タイトル <span style={{ color: "#ef4444" }}>*</span></span>
-              <CharCount current={titleCount} max={LONG_TITLE_MAX} warnAt={TITLE_MAX} />
+              <CharCount current={titleCount} max={TITLE_MAX} />
             </label>
             <input
-              style={{ ...inputStyle, borderColor: titleCount > LONG_TITLE_MAX ? "#ef4444" : "#d1d5db" }}
+              style={{ ...inputStyle, borderColor: titleCount > TITLE_MAX ? "#ef4444" : "#d1d5db" }}
               type="text"
               value={data.title}
               onChange={(e) => update({ title: e.target.value })}
             />
-            {titleCount > TITLE_MAX && titleCount <= LONG_TITLE_MAX && (
-              <div style={{ fontSize: 11, color: "#f59e0b", marginTop: 4 }}>
-                タイムライン（{TITLE_MAX}文字まで）では一部が折り返されます
-              </div>
-            )}
-            {titleCount > LONG_TITLE_MAX && (
+            {titleCount > TITLE_MAX && (
               <div style={{ fontSize: 11, color: "#ef4444", marginTop: 4 }}>
-                {titleCount - LONG_TITLE_MAX}文字超過しています
+                {titleCount - TITLE_MAX}文字超過しています
               </div>
             )}
           </div>

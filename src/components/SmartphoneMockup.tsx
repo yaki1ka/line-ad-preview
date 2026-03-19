@@ -8,7 +8,7 @@ interface Props {
 
 export const SmartphoneMockup = ({ children, screen }: Props) => {
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       {/* Phone outer shell */}
       <div
         style={{
@@ -18,6 +18,9 @@ export const SmartphoneMockup = ({ children, screen }: Props) => {
           padding: "0 3px 3px",
           boxShadow: "0 8px 32px rgba(0,0,0,0.28), 0 0 0 1px #333",
           position: "relative",
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
         }}
       >
         {/* Side buttons */}
@@ -32,6 +35,9 @@ export const SmartphoneMockup = ({ children, screen }: Props) => {
             background: "#000",
             borderRadius: 42,
             overflow: "hidden",
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
           }}
         >
           {/* Status bar */}
@@ -117,11 +123,11 @@ export const SmartphoneMockup = ({ children, screen }: Props) => {
             </div>
           </div>
 
-          {/* Content — minHeight keeps phone at ≥9:16; grows to fit content */}
+          {/* Content — flex:1 fills remaining screen height */}
           <div
             style={{
               background: screen === "timeline" ? "#f0f0f0" : "#fff",
-              minHeight: 366,
+              flex: 1,
             }}
           >
             {screen === "timeline" ? (

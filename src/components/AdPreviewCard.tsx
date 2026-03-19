@@ -176,10 +176,6 @@ export const AdPreviewSample1 = ({ data }: Props) => {
           fontSize: 11,
           color: data.description ? "#666" : "#c0c0c0",
           lineHeight: 1.5,
-          display: "-webkit-box",
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: "vertical",
-          overflow: "hidden",
         }}
       >
         {desc}

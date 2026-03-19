@@ -166,7 +166,7 @@ export default function App() {
               display: "flex",
               gap: 20,
               justifyContent: "center",
-              flexWrap: "wrap",
+              alignItems: "stretch",
               padding: "24px 16px",
               background: "linear-gradient(135deg, #e8edf2 0%, #d8e4f0 100%)",
               borderRadius: 16,
@@ -177,7 +177,7 @@ export default function App() {
               <div style={{ fontSize: 11, fontWeight: 700, color: "#4b5563", marginBottom: 10, letterSpacing: "0.04em", textTransform: "uppercase" }}>
                 タイムライン
               </div>
-              <div ref={timelineRef}>
+              <div ref={timelineRef} style={{ flex: 1, display: "flex", flexDirection: "column" }}>
                 <SmartphoneMockup screen="timeline">
                   <AdPreviewSample1 data={data} />
                 </SmartphoneMockup>
@@ -190,7 +190,7 @@ export default function App() {
               <div style={{ fontSize: 11, fontWeight: 700, color: "#4b5563", marginBottom: 10, letterSpacing: "0.04em", textTransform: "uppercase" }}>
                 トークリスト
               </div>
-              <div ref={talklistRef}>
+              <div ref={talklistRef} style={{ flex: 1, display: "flex", flexDirection: "column" }}>
                 <SmartphoneMockup screen="talklist">
                   <AdPreviewSample2 data={data} />
                 </SmartphoneMockup>
