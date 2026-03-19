@@ -130,7 +130,7 @@ export default function App() {
             </svg>
             広告情報を入力
           </h2>
-          <InputForm data={data} onChange={setData} />
+          <InputForm data={data} onChange={setData} mode={activeTab} />
         </div>
 
         {/* Right: Preview panel */}
@@ -213,12 +213,21 @@ export default function App() {
               alignItems: "center",
             }}
           >
-            <span style={{ fontWeight: 700 }}>
-              {activeTab === "timeline" ? "📋 タイムライン（カード形式）" : "💬 トークリスト（コンパクト）"}
-            </span>
-            <span>タイトル: 最大20文字</span>
-            {activeTab === "timeline" && <span>説明文: 最大75文字</span>}
-            <span>画像: {data.imageAspect === "square" ? "1,080×1,080px" : "1,200×628px"}</span>
+            {activeTab === "timeline" ? (
+              <>
+                <span style={{ fontWeight: 700 }}>📋 タイムライン（カード）</span>
+                <span>タイトル: 最大<strong>20</strong>文字</span>
+                <span>説明文: 最大<strong>75</strong>文字</span>
+                <span>画像: {data.imageAspect === "square" ? "1,080×1,080px (1:1)" : "1,200×628px (1.91:1)"}</span>
+              </>
+            ) : (
+              <>
+                <span style={{ fontWeight: 700 }}>💬 トークリスト（スモール画像）</span>
+                <span>長いタイトル: 最大<strong>35</strong>文字</span>
+                <span>説明文: <strong>非表示</strong></span>
+                <span>画像: <strong>600×400px (3:2)</strong></span>
+              </>
+            )}
           </div>
 
           {/* Mockup preview */}
