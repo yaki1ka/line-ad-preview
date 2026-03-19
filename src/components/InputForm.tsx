@@ -80,12 +80,12 @@ export const InputForm = ({ data, onChange, mode }: Props) => {
           {/* Brand name */}
           <div>
             <label style={labelStyle}>
-              <span>ブランド名 <span style={{ color: "#ef4444" }}>*</span></span>
+              <span>LINEアカウント名 <span style={{ color: "#ef4444" }}>*</span></span>
             </label>
             <input
               style={inputStyle}
               type="text"
-              placeholder="例: ゴールドガーデン"
+              placeholder="LINEアカウント名"
               value={data.brandName}
               onChange={(e) => update({ brandName: e.target.value })}
               maxLength={30}

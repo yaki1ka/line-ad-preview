@@ -21,7 +21,9 @@ export default function App() {
   const [data, setData] = useState<AdData>(defaultData);
   const [activeTab, setActiveTab] = useState<TabKey>("timeline");
   const [downloading, setDownloading] = useState(false);
+  const [downloadingCards, setDownloadingCards] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
+  const cardPreviewRef = useRef<HTMLDivElement>(null);
 
   const handleDownload = async () => {
     if (!previewRef.current) return;
@@ -30,7 +32,7 @@ export default function App() {
       const canvas = await html2canvas(previewRef.current, {
         scale: 2,
         useCORS: true,
-        backgroundColor: "#e8edf2",
+        backgroundColor: null,
         logging: false,
       });
       const link = document.createElement("a");
@@ -39,6 +41,25 @@ export default function App() {
       link.click();
     } finally {
       setDownloading(false);
+    }
+  };
+
+  const handleDownloadCards = async () => {
+    if (!cardPreviewRef.current) return;
+    setDownloadingCards(true);
+    try {
+      const canvas = await html2canvas(cardPreviewRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: null,
+        logging: false,
+      });
+      const link = document.createElement("a");
+      link.download = "line-ad-cards.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    } finally {
+      setDownloadingCards(false);
     }
   };
 
@@ -254,12 +275,41 @@ export default function App() {
 
           {/* Ad-only preview strip */}
           <div style={{ marginTop: 20 }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: "#9ca3af", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
-              <div style={{ flex: 1, height: 1, background: "#e5e7eb" }} />
-              広告カードのみプレビュー
-              <div style={{ flex: 1, height: 1, background: "#e5e7eb" }} />
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "#9ca3af", display: "flex", alignItems: "center", gap: 6, flex: 1 }}>
+                <div style={{ flex: 1, height: 1, background: "#e5e7eb" }} />
+                広告カードのみプレビュー
+                <div style={{ flex: 1, height: 1, background: "#e5e7eb" }} />
+              </div>
+              <button
+                onClick={handleDownloadCards}
+                disabled={downloadingCards}
+                style={{
+                  marginLeft: 12,
+                  padding: "6px 12px",
+                  background: downloadingCards ? "#9ca3af" : "#111",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: 6,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  cursor: downloadingCards ? "not-allowed" : "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 4,
+                  fontFamily: "'Noto Sans JP', sans-serif",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                {downloadingCards ? "処理中..." : "2枚まとめてDL"}
+              </button>
             </div>
-            <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center" }}>
+            <div ref={cardPreviewRef} style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center", padding: "12px", background: "#fff" }}>
               <div style={{ border: "1px solid #e5e7eb", borderRadius: 8, overflow: "hidden" }}>
                 <div style={{ fontSize: 10, color: "#9ca3af", padding: "4px 8px", background: "#f9fafb", borderBottom: "1px solid #e5e7eb" }}>タイムライン</div>
                 <AdPreviewSample1 data={data} />

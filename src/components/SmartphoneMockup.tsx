@@ -121,7 +121,7 @@ export const SmartphoneMockup = ({ children, screen }: Props) => {
           <div
             style={{
               background: screen === "timeline" ? "#f0f0f0" : "#fff",
-              minHeight: 430,
+              height: 390,
               overflowY: "hidden",
             }}
           >

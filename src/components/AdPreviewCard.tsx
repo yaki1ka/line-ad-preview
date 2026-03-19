@@ -77,7 +77,7 @@ const BrandIcon = ({ url, name }: { url: string | null; name: string }) => {
 export const AdPreviewSample1 = ({ data }: Props) => {
   const title = data.title || "タイトルがここに表示されます";
   const desc = data.description || "説明文がここに表示されます";
-  const brand = data.brandName || "ブランド名";
+  const brand = data.brandName || "LINEアカウント名";
 
   return (
     <div
@@ -198,7 +198,7 @@ export const AdPreviewSample1 = ({ data }: Props) => {
  */
 export const AdPreviewSample2 = ({ data }: Props) => {
   const title = data.title || "タイトルがここに表示されます";
-  const brand = data.brandName || "ブランド名";
+  const brand = data.brandName || "LINEアカウント名";
 
   return (
     <div
