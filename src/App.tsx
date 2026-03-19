@@ -15,79 +15,75 @@ const defaultData: AdData = {
   description: "",
 };
 
-type TabKey = "timeline" | "talklist";
-
 export default function App() {
   const [data, setData] = useState<AdData>(defaultData);
-  const [activeTab, setActiveTab] = useState<TabKey>("timeline");
-  const [downloading, setDownloading] = useState(false);
+  const [downloadingTimeline, setDownloadingTimeline] = useState(false);
+  const [downloadingTalklist, setDownloadingTalklist] = useState(false);
   const [downloadingCards, setDownloadingCards] = useState(false);
-  const previewRef = useRef<HTMLDivElement>(null);
+  const timelineRef = useRef<HTMLDivElement>(null);
+  const talklistRef = useRef<HTMLDivElement>(null);
   const cardPreviewRef = useRef<HTMLDivElement>(null);
 
-  const handleDownload = async () => {
-    if (!previewRef.current) return;
-    setDownloading(true);
+  const makeDownloader = (
+    ref: React.RefObject<HTMLDivElement | null>,
+    filename: string,
+    setSaving: (v: boolean) => void
+  ) => async () => {
+    if (!ref.current) return;
+    setSaving(true);
     try {
-      const canvas = await html2canvas(previewRef.current, {
+      const canvas = await html2canvas(ref.current, {
         scale: 2,
         useCORS: true,
         backgroundColor: null,
         logging: false,
       });
       const link = document.createElement("a");
-      link.download = `line-ad-preview-${activeTab}.png`;
+      link.download = filename;
       link.href = canvas.toDataURL("image/png");
       link.click();
     } finally {
-      setDownloading(false);
+      setSaving(false);
     }
   };
 
-  const handleDownloadCards = async () => {
-    if (!cardPreviewRef.current) return;
-    setDownloadingCards(true);
-    try {
-      const canvas = await html2canvas(cardPreviewRef.current, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: null,
-        logging: false,
-      });
-      const link = document.createElement("a");
-      link.download = "line-ad-cards.png";
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-    } finally {
-      setDownloadingCards(false);
-    }
-  };
+  const handleDownloadTimeline = makeDownloader(timelineRef, "line-ad-timeline.png", setDownloadingTimeline);
+  const handleDownloadTalklist = makeDownloader(talklistRef, "line-ad-talklist.png", setDownloadingTalklist);
+  const handleDownloadCards = makeDownloader(cardPreviewRef, "line-ad-cards.png", setDownloadingCards);
 
-  const tabStyle = (tab: TabKey): React.CSSProperties => ({
-    padding: "8px 20px",
-    border: "2px solid",
-    borderColor: activeTab === tab ? "#06c755" : "#e5e7eb",
-    borderRadius: 8,
-    background: activeTab === tab ? "#06c755" : "#fff",
-    color: activeTab === tab ? "#fff" : "#6b7280",
-    fontWeight: activeTab === tab ? 700 : 500,
-    fontSize: 13,
-    cursor: "pointer",
-    transition: "all 0.15s",
-    fontFamily: "'Noto Sans JP', sans-serif",
-    display: "flex",
-    alignItems: "center",
-    gap: 6,
-  });
-
-  return (
-    <div
+  const dlBtn = (onClick: () => void, disabled: boolean, label: string) => (
+    <button
+      onClick={onClick}
+      disabled={disabled}
       style={{
-        minHeight: "100vh",
-        background: "#f0f2f5",
+        marginTop: 10,
+        width: "100%",
+        padding: "7px 0",
+        background: disabled ? "#9ca3af" : "#111",
+        color: "#fff",
+        border: "none",
+        borderRadius: 7,
+        fontSize: 12,
+        fontWeight: 700,
+        cursor: disabled ? "not-allowed" : "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 5,
         fontFamily: "'Noto Sans JP', sans-serif",
       }}
     >
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+        <polyline points="7 10 12 15 17 10" />
+        <line x1="12" y1="15" x2="12" y2="3" />
+      </svg>
+      {label}
+    </button>
+  );
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#f0f2f5", fontFamily: "'Noto Sans JP', sans-serif" }}>
       {/* Header */}
       <header
         style={{
@@ -100,34 +96,25 @@ export default function App() {
           boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
         }}
       >
-        <div
-          style={{
-            width: 34, height: 34, background: "rgba(255,255,255,0.2)", borderRadius: 10,
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}
-        >
+        <div style={{ width: 34, height: 34, background: "rgba(255,255,255,0.2)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff">
             <path d="M12 2C6.48 2 2 5.92 2 10.8c0 3.16 1.76 5.95 4.44 7.68L5.5 22l4.12-2.07c.77.21 1.56.32 2.38.32 5.52 0 10-3.92 10-8.8C22 5.92 17.52 2 12 2z" />
           </svg>
         </div>
         <div>
-          <h1 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "#fff" }}>
-            LINE 友だち追加広告 プレビューツール
-          </h1>
-          <p style={{ margin: 0, fontSize: 11, color: "rgba(255,255,255,0.75)" }}>
-            クリエイティブの見た目をスマホで確認できます
-          </p>
+          <h1 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "#fff" }}>LINE 友だち追加広告 プレビューツール</h1>
+          <p style={{ margin: 0, fontSize: 11, color: "rgba(255,255,255,0.75)" }}>クリエイティブの見た目をスマホで確認できます</p>
         </div>
       </header>
 
       {/* Main layout */}
       <main
         style={{
-          maxWidth: 1100,
+          maxWidth: 1200,
           margin: "0 auto",
           padding: "24px 20px",
           display: "grid",
-          gridTemplateColumns: "360px 1fr",
+          gridTemplateColumns: "340px 1fr",
           gap: 20,
           alignItems: "start",
         }}
@@ -151,7 +138,7 @@ export default function App() {
             </svg>
             広告情報を入力
           </h2>
-          <InputForm data={data} onChange={setData} mode={activeTab} />
+          <InputForm data={data} onChange={setData} />
         </div>
 
         {/* Right: Preview panel */}
@@ -164,118 +151,57 @@ export default function App() {
             boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
           }}
         >
-          {/* Panel header */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
-            <h2 style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "#111", display: "flex", alignItems: "center", gap: 6 }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#06c755" strokeWidth="2.5" strokeLinecap="round">
-                <rect x="2" y="3" width="20" height="14" rx="2"/>
-                <line x1="8" y1="21" x2="16" y2="21"/>
-                <line x1="12" y1="17" x2="12" y2="21"/>
-              </svg>
-              プレビュー
-            </h2>
-            <button
-              onClick={handleDownload}
-              disabled={downloading}
-              style={{
-                padding: "8px 16px",
-                background: downloading ? "#9ca3af" : "#111",
-                color: "#fff",
-                border: "none",
-                borderRadius: 8,
-                fontSize: 12,
-                fontWeight: 700,
-                cursor: downloading ? "not-allowed" : "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-                fontFamily: "'Noto Sans JP', sans-serif",
-                transition: "background 0.15s",
-              }}
-            >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round">
-                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
-              </svg>
-              {downloading ? "処理中..." : "PNG ダウンロード"}
-            </button>
-          </div>
+          <h2 style={{ margin: "0 0 20px", fontSize: 14, fontWeight: 700, color: "#111", display: "flex", alignItems: "center", gap: 6 }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#06c755" strokeWidth="2.5" strokeLinecap="round">
+              <rect x="2" y="3" width="20" height="14" rx="2"/>
+              <line x1="8" y1="21" x2="16" y2="21"/>
+              <line x1="12" y1="17" x2="12" y2="21"/>
+            </svg>
+            プレビュー
+          </h2>
 
-          {/* Tab switcher */}
-          <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
-            <button style={tabStyle("timeline")} onClick={() => setActiveTab("timeline")}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                <circle cx="12" cy="5" r="3"/><line x1="12" y1="8" x2="12" y2="21"/>
-              </svg>
-              タイムライン
-            </button>
-            <button style={tabStyle("talklist")} onClick={() => setActiveTab("talklist")}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-              </svg>
-              トークリスト
-            </button>
-          </div>
-
-          {/* Spec badge */}
+          {/* Two phones side by side */}
           <div
             style={{
-              background: "#f0fdf4",
-              border: "1px solid #bbf7d0",
-              borderRadius: 8,
-              padding: "8px 14px",
-              marginBottom: 20,
-              fontSize: 11,
-              color: "#166534",
               display: "flex",
-              gap: 14,
-              flexWrap: "wrap",
-              alignItems: "center",
-            }}
-          >
-            {activeTab === "timeline" ? (
-              <>
-                <span style={{ fontWeight: 700 }}>📋 タイムライン（カード）</span>
-                <span>タイトル: 最大<strong>20</strong>文字</span>
-                <span>説明文: 最大<strong>75</strong>文字</span>
-                <span>画像: {data.imageAspect === "square" ? "1,080×1,080px (1:1)" : "1,200×628px (1.91:1)"}</span>
-              </>
-            ) : (
-              <>
-                <span style={{ fontWeight: 700 }}>💬 トークリスト（スモール画像）</span>
-                <span>長いタイトル: 最大<strong>35</strong>文字</span>
-                <span>説明文: <strong>非表示</strong></span>
-                <span>画像: <strong>600×400px (3:2)</strong></span>
-              </>
-            )}
-          </div>
-
-          {/* Mockup preview */}
-          <div
-            ref={previewRef}
-            style={{
-              display: "flex",
+              gap: 20,
               justifyContent: "center",
-              padding: "28px 20px",
+              flexWrap: "wrap",
+              padding: "24px 16px",
               background: "linear-gradient(135deg, #e8edf2 0%, #d8e4f0 100%)",
               borderRadius: 16,
             }}
           >
-            {activeTab === "timeline" ? (
-              <SmartphoneMockup screen="timeline">
-                <AdPreviewSample1 data={data} />
-              </SmartphoneMockup>
-            ) : (
-              <SmartphoneMockup screen="talklist">
-                <AdPreviewSample2 data={data} />
-              </SmartphoneMockup>
-            )}
+            {/* Timeline */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#4b5563", marginBottom: 10, letterSpacing: "0.04em", textTransform: "uppercase" }}>
+                タイムライン
+              </div>
+              <div ref={timelineRef}>
+                <SmartphoneMockup screen="timeline">
+                  <AdPreviewSample1 data={data} />
+                </SmartphoneMockup>
+              </div>
+              {dlBtn(handleDownloadTimeline, downloadingTimeline, downloadingTimeline ? "処理中..." : "PNG DL")}
+            </div>
+
+            {/* Talklist */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: "#4b5563", marginBottom: 10, letterSpacing: "0.04em", textTransform: "uppercase" }}>
+                トークリスト
+              </div>
+              <div ref={talklistRef}>
+                <SmartphoneMockup screen="talklist">
+                  <AdPreviewSample2 data={data} />
+                </SmartphoneMockup>
+              </div>
+              {dlBtn(handleDownloadTalklist, downloadingTalklist, downloadingTalklist ? "処理中..." : "PNG DL")}
+            </div>
           </div>
 
           {/* Ad-only preview strip */}
-          <div style={{ marginTop: 20 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+          <div style={{ marginTop: 24 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
               <div style={{ fontSize: 12, fontWeight: 600, color: "#9ca3af", display: "flex", alignItems: "center", gap: 6, flex: 1 }}>
                 <div style={{ flex: 1, height: 1, background: "#e5e7eb" }} />
                 広告カードのみプレビュー
