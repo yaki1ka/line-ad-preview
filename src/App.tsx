@@ -1,90 +1,17 @@
-import { useState, useRef } from "react";
-import html2canvas from "html2canvas";
-import type { AdData } from "./types";
-import { InputForm } from "./components/InputForm";
-import { AdPreviewSample1, AdPreviewSample2 } from "./components/AdPreviewCard";
-import { SmartphoneMockup } from "./components/SmartphoneMockup";
+import { Routes, Route, NavLink } from "react-router-dom";
+import { AdPreviewPage } from "./AdPreviewPage";
+import { RichMenuPage } from "./RichMenuPage";
 import "./App.css";
 
-const defaultData: AdData = {
-  brandName: "",
-  brandIconUrl: null,
-  imageUrl: null,
-  imageAspect: "square",
-  title: "",
-  description: "",
-};
+const NAV_ITEMS = [
+  { to: "/", label: "友だち追加広告" },
+  { to: "/rich-menu", label: "リッチメニュー" },
+];
 
 export default function App() {
-  const [data, setData] = useState<AdData>(defaultData);
-  const [downloadingTimeline, setDownloadingTimeline] = useState(false);
-  const [downloadingTalklist, setDownloadingTalklist] = useState(false);
-  const [downloadingCards, setDownloadingCards] = useState(false);
-  const timelineRef = useRef<HTMLDivElement>(null);
-  const talklistRef = useRef<HTMLDivElement>(null);
-  const cardPreviewRef = useRef<HTMLDivElement>(null);
-
-  const makeDownloader = (
-    ref: React.RefObject<HTMLDivElement | null>,
-    filename: string,
-    setSaving: (v: boolean) => void
-  ) => async () => {
-    if (!ref.current) return;
-    setSaving(true);
-    try {
-      const canvas = await html2canvas(ref.current, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: null,
-        logging: false,
-      });
-      const link = document.createElement("a");
-      link.download = filename;
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleDownloadTimeline = makeDownloader(timelineRef, "line-ad-timeline.png", setDownloadingTimeline);
-  const handleDownloadTalklist = makeDownloader(talklistRef, "line-ad-talklist.png", setDownloadingTalklist);
-  const handleDownloadCards = makeDownloader(cardPreviewRef, "line-ad-cards.png", setDownloadingCards);
-
-  const dlBtn = (onClick: () => void, disabled: boolean, label: string) => (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      style={{
-        marginTop: 10,
-        width: "100%",
-        padding: "7px 0",
-        background: disabled ? "#9ca3af" : "#111",
-        color: "#fff",
-        border: "none",
-        borderRadius: 7,
-        fontSize: 12,
-        fontWeight: 700,
-        cursor: disabled ? "not-allowed" : "pointer",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 5,
-        fontFamily: "'Noto Sans JP', sans-serif",
-      }}
-    >
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round">
-        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-        <polyline points="7 10 12 15 17 10" />
-        <line x1="12" y1="15" x2="12" y2="3" />
-      </svg>
-      {label}
-    </button>
-  );
-
   return (
     <div style={{ minHeight: "100vh", background: "#f0f2f5", fontFamily: "'Noto Sans JP', sans-serif" }}>
-      {/* Header */}
+      {/* Shared header with navigation */}
       <header
         style={{
           background: "#06c755",
@@ -92,162 +19,52 @@ export default function App() {
           height: 56,
           display: "flex",
           alignItems: "center",
-          gap: 12,
+          gap: 16,
           boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
         }}
       >
-        <div style={{ width: 34, height: 34, background: "rgba(255,255,255,0.2)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff">
-            <path d="M12 2C6.48 2 2 5.92 2 10.8c0 3.16 1.76 5.95 4.44 7.68L5.5 22l4.12-2.07c.77.21 1.56.32 2.38.32 5.52 0 10-3.92 10-8.8C22 5.92 17.52 2 12 2z" />
-          </svg>
+        {/* Logo */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+          <div style={{ width: 32, height: 32, background: "rgba(255,255,255,0.2)", borderRadius: 9, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff">
+              <path d="M12 2C6.48 2 2 5.92 2 10.8c0 3.16 1.76 5.95 4.44 7.68L5.5 22l4.12-2.07c.77.21 1.56.32 2.38.32 5.52 0 10-3.92 10-8.8C22 5.92 17.52 2 12 2z" />
+            </svg>
+          </div>
+          <span style={{ fontSize: 14, fontWeight: 800, color: "#fff", letterSpacing: "-0.2px" }}>
+            LINE プレビューツール
+          </span>
         </div>
-        <div>
-          <h1 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "#fff" }}>LINE 友だち追加広告 プレビューツール</h1>
-          <p style={{ margin: 0, fontSize: 11, color: "rgba(255,255,255,0.75)" }}>クリエイティブの見た目をスマホで確認できます</p>
-        </div>
+
+        {/* Navigation */}
+        <nav style={{ display: "flex", gap: 4, marginLeft: 8 }}>
+          {NAV_ITEMS.map(({ to, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              end
+              style={({ isActive }) => ({
+                padding: "6px 14px",
+                borderRadius: 20,
+                fontSize: 13,
+                fontWeight: isActive ? 700 : 500,
+                color: isActive ? "#06c755" : "rgba(255,255,255,0.85)",
+                background: isActive ? "#fff" : "rgba(255,255,255,0.12)",
+                textDecoration: "none",
+                transition: "all 0.15s",
+                whiteSpace: "nowrap" as const,
+              })}
+            >
+              {label}
+            </NavLink>
+          ))}
+        </nav>
       </header>
 
-      {/* Main layout */}
-      <main
-        style={{
-          maxWidth: 1200,
-          margin: "0 auto",
-          padding: "24px 20px",
-          display: "grid",
-          gridTemplateColumns: "340px 1fr",
-          gap: 20,
-          alignItems: "start",
-        }}
-      >
-        {/* Left: Input panel */}
-        <div
-          style={{
-            background: "#fff",
-            borderRadius: 12,
-            border: "1px solid #e5e7eb",
-            padding: 22,
-            boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
-            position: "sticky",
-            top: 20,
-          }}
-        >
-          <h2 style={{ margin: "0 0 18px", fontSize: 14, fontWeight: 700, color: "#111", display: "flex", alignItems: "center", gap: 6 }}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#06c755" strokeWidth="2.5" strokeLinecap="round">
-              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-            </svg>
-            広告情報を入力
-          </h2>
-          <InputForm data={data} onChange={setData} />
-        </div>
-
-        {/* Right: Preview panel */}
-        <div
-          style={{
-            background: "#fff",
-            borderRadius: 12,
-            border: "1px solid #e5e7eb",
-            padding: 22,
-            boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
-          }}
-        >
-          <h2 style={{ margin: "0 0 20px", fontSize: 14, fontWeight: 700, color: "#111", display: "flex", alignItems: "center", gap: 6 }}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#06c755" strokeWidth="2.5" strokeLinecap="round">
-              <rect x="2" y="3" width="20" height="14" rx="2"/>
-              <line x1="8" y1="21" x2="16" y2="21"/>
-              <line x1="12" y1="17" x2="12" y2="21"/>
-            </svg>
-            プレビュー
-          </h2>
-
-          {/* Two phones side by side */}
-          <div
-            style={{
-              display: "flex",
-              gap: 20,
-              justifyContent: "center",
-              alignItems: "stretch",
-              padding: "24px 16px",
-              background: "linear-gradient(135deg, #e8edf2 0%, #d8e4f0 100%)",
-              borderRadius: 16,
-            }}
-          >
-            {/* Timeline */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "#4b5563", marginBottom: 10, letterSpacing: "0.04em", textTransform: "uppercase" }}>
-                タイムライン
-              </div>
-              <div ref={timelineRef} style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-                <SmartphoneMockup screen="timeline">
-                  <AdPreviewSample1 data={data} />
-                </SmartphoneMockup>
-              </div>
-              {dlBtn(handleDownloadTimeline, downloadingTimeline, downloadingTimeline ? "処理中..." : "PNG DL")}
-            </div>
-
-            {/* Talklist */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "#4b5563", marginBottom: 10, letterSpacing: "0.04em", textTransform: "uppercase" }}>
-                トークリスト
-              </div>
-              <div ref={talklistRef} style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-                <SmartphoneMockup screen="talklist">
-                  <AdPreviewSample2 data={data} />
-                </SmartphoneMockup>
-              </div>
-              {dlBtn(handleDownloadTalklist, downloadingTalklist, downloadingTalklist ? "処理中..." : "PNG DL")}
-            </div>
-          </div>
-
-          {/* Ad-only preview strip */}
-          <div style={{ marginTop: 24 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: "#9ca3af", display: "flex", alignItems: "center", gap: 6, flex: 1 }}>
-                <div style={{ flex: 1, height: 1, background: "#e5e7eb" }} />
-                広告カードのみプレビュー
-                <div style={{ flex: 1, height: 1, background: "#e5e7eb" }} />
-              </div>
-              <button
-                onClick={handleDownloadCards}
-                disabled={downloadingCards}
-                style={{
-                  marginLeft: 12,
-                  padding: "6px 12px",
-                  background: downloadingCards ? "#9ca3af" : "#111",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: 6,
-                  fontSize: 11,
-                  fontWeight: 700,
-                  cursor: downloadingCards ? "not-allowed" : "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 4,
-                  fontFamily: "'Noto Sans JP', sans-serif",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round">
-                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-                  <polyline points="7 10 12 15 17 10" />
-                  <line x1="12" y1="15" x2="12" y2="3" />
-                </svg>
-                {downloadingCards ? "処理中..." : "2枚まとめてDL"}
-              </button>
-            </div>
-            <div ref={cardPreviewRef} style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center", padding: "12px", background: "#fff" }}>
-              <div style={{ border: "1px solid #e5e7eb", borderRadius: 8, overflow: "hidden" }}>
-                <div style={{ fontSize: 10, color: "#9ca3af", padding: "4px 8px", background: "#f9fafb", borderBottom: "1px solid #e5e7eb" }}>タイムライン</div>
-                <AdPreviewSample1 data={data} />
-              </div>
-              <div style={{ border: "1px solid #e5e7eb", borderRadius: 8, overflow: "hidden", maxWidth: 290 }}>
-                <div style={{ fontSize: 10, color: "#9ca3af", padding: "4px 8px", background: "#f9fafb", borderBottom: "1px solid #e5e7eb" }}>トークリスト</div>
-                <AdPreviewSample2 data={data} />
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
+      {/* Page content */}
+      <Routes>
+        <Route path="/" element={<AdPreviewPage />} />
+        <Route path="/rich-menu" element={<RichMenuPage />} />
+      </Routes>
     </div>
   );
 }
