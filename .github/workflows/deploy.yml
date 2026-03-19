@@ -2,7 +2,9 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [master]
+    branches:
+      - master
+      - 'claude/line-ad-preview-tool-uhWfT'
   workflow_dispatch:
 
 permissions:
