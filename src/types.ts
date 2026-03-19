@@ -8,4 +8,5 @@ export interface AdData {
 }
 
 export const TITLE_MAX = 20;
+export const LONG_TITLE_MAX = 35; // Talk List (Small Image) format
 export const DESC_MAX = 75;

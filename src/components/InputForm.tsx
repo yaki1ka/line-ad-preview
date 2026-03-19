@@ -1,14 +1,16 @@
 import { useRef } from "react";
 import type { ChangeEvent } from "react";
 import type { AdData } from "../types";
-import { TITLE_MAX, DESC_MAX } from "../types";
+import { TITLE_MAX, LONG_TITLE_MAX, DESC_MAX } from "../types";
 
 interface Props {
   data: AdData;
   onChange: (data: AdData) => void;
+  /** Which ad format is being previewed */
+  mode: "timeline" | "talklist";
 }
 
-const countChars = (str: string) => str.length;
+const countChars = (str: string) => [...str].length;
 
 const CharCount = ({ current, max }: { current: number; max: number }) => {
   const over = current > max;
@@ -42,9 +44,11 @@ const labelStyle: React.CSSProperties = {
   marginBottom: 6,
 };
 
-export const InputForm = ({ data, onChange }: Props) => {
+export const InputForm = ({ data, onChange, mode }: Props) => {
   const imageInputRef = useRef<HTMLInputElement>(null);
   const iconInputRef = useRef<HTMLInputElement>(null);
+
+  const titleMax = mode === "talklist" ? LONG_TITLE_MAX : TITLE_MAX;
 
   const update = (patch: Partial<AdData>) => onChange({ ...data, ...patch });
 
@@ -209,7 +213,11 @@ export const InputForm = ({ data, onChange }: Props) => {
                   </svg>
                   <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>クリックして画像をアップロード</div>
                   <div style={{ fontSize: 11 }}>JPG, PNG, GIF 対応</div>
-                  <div style={{ fontSize: 11, marginTop: 2 }}>正方形: 1,080×1,080px / 横長: 1,200×628px 推奨</div>
+                  <div style={{ fontSize: 11, marginTop: 2 }}>
+                    {mode === "talklist"
+                      ? "600×400px (3:2) 推奨"
+                      : "正方形: 1,080×1,080px / 横長: 1,200×628px 推奨"}
+                  </div>
                 </div>
               )}
             </div>
@@ -227,52 +235,67 @@ export const InputForm = ({ data, onChange }: Props) => {
           {/* Title */}
           <div>
             <label style={labelStyle}>
-              <span>タイトル <span style={{ color: "#ef4444" }}>*</span></span>
-              <CharCount current={titleCount} max={TITLE_MAX} />
+              <span>
+                {mode === "talklist" ? "長いタイトル" : "タイトル"}
+                {" "}<span style={{ color: "#ef4444" }}>*</span>
+              </span>
+              <CharCount current={titleCount} max={titleMax} />
             </label>
             <input
               style={{
                 ...inputStyle,
-                borderColor: titleCount > TITLE_MAX ? "#ef4444" : "#d1d5db",
+                borderColor: titleCount > titleMax ? "#ef4444" : "#d1d5db",
               }}
               type="text"
               placeholder="タイトルがここに表示されます"
               value={data.title}
               onChange={(e) => update({ title: e.target.value })}
             />
-            {titleCount > TITLE_MAX && (
+            {titleCount > titleMax && (
               <div style={{ fontSize: 11, color: "#ef4444", marginTop: 4 }}>
-                {titleCount - TITLE_MAX}文字超過しています
+                {titleCount - titleMax}文字超過しています
               </div>
             )}
           </div>
 
-          {/* Description */}
-          <div>
-            <label style={labelStyle}>
-              <span>説明文</span>
-              <CharCount current={descCount} max={DESC_MAX} />
-            </label>
-            <textarea
-              style={{
-                ...inputStyle,
-                resize: "vertical",
-                minHeight: 80,
-                borderColor: descCount > DESC_MAX ? "#ef4444" : "#d1d5db",
-              }}
-              placeholder="説明文がここに表示されます"
-              value={data.description}
-              onChange={(e) => update({ description: e.target.value })}
-            />
-            {descCount > DESC_MAX && (
-              <div style={{ fontSize: 11, color: "#ef4444", marginTop: 4 }}>
-                {descCount - DESC_MAX}文字超過しています
-              </div>
-            )}
-            <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 4 }}>
-              ※ 説明文はサンプル1（カード形式）にのみ表示されます
+          {/* Description (timeline only) */}
+          {mode === "timeline" ? (
+            <div>
+              <label style={labelStyle}>
+                <span>説明文</span>
+                <CharCount current={descCount} max={DESC_MAX} />
+              </label>
+              <textarea
+                style={{
+                  ...inputStyle,
+                  resize: "vertical",
+                  minHeight: 80,
+                  borderColor: descCount > DESC_MAX ? "#ef4444" : "#d1d5db",
+                }}
+                placeholder="説明文がここに表示されます"
+                value={data.description}
+                onChange={(e) => update({ description: e.target.value })}
+              />
+              {descCount > DESC_MAX && (
+                <div style={{ fontSize: 11, color: "#ef4444", marginTop: 4 }}>
+                  {descCount - DESC_MAX}文字超過しています
+                </div>
+              )}
             </div>
-          </div>
+          ) : (
+            <div
+              style={{
+                background: "#f9fafb",
+                border: "1px solid #e5e7eb",
+                borderRadius: 6,
+                padding: "10px 12px",
+                fontSize: 12,
+                color: "#9ca3af",
+              }}
+            >
+              ※ トークリスト形式では説明文は表示されません
+            </div>
+          )}
         </div>
       </div>
     </div>

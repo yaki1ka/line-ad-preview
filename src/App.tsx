@@ -15,11 +15,11 @@ const defaultData: AdData = {
   description: "",
 };
 
-type TabKey = "sample1" | "sample2";
+type TabKey = "timeline" | "talklist";
 
 export default function App() {
   const [data, setData] = useState<AdData>(defaultData);
-  const [activeTab, setActiveTab] = useState<TabKey>("sample1");
+  const [activeTab, setActiveTab] = useState<TabKey>("timeline");
   const [downloading, setDownloading] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
 
@@ -30,10 +30,11 @@ export default function App() {
       const canvas = await html2canvas(previewRef.current, {
         scale: 2,
         useCORS: true,
-        backgroundColor: "#f3f4f6",
+        backgroundColor: "#e8edf2",
+        logging: false,
       });
       const link = document.createElement("a");
-      link.download = `line-ad-preview-${activeTab === "sample1" ? "card" : "compact"}.png`;
+      link.download = `line-ad-preview-${activeTab}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
     } finally {
@@ -42,56 +43,58 @@ export default function App() {
   };
 
   const tabStyle = (tab: TabKey): React.CSSProperties => ({
-    padding: "8px 24px",
-    border: "1px solid",
-    borderColor: activeTab === tab ? "#06c755" : "#d1d5db",
-    borderRadius: 6,
+    padding: "8px 20px",
+    border: "2px solid",
+    borderColor: activeTab === tab ? "#06c755" : "#e5e7eb",
+    borderRadius: 8,
     background: activeTab === tab ? "#06c755" : "#fff",
     color: activeTab === tab ? "#fff" : "#6b7280",
-    fontWeight: activeTab === tab ? 700 : 400,
-    fontSize: 14,
+    fontWeight: activeTab === tab ? 700 : 500,
+    fontSize: 13,
     cursor: "pointer",
     transition: "all 0.15s",
     fontFamily: "'Noto Sans JP', sans-serif",
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
   });
 
   return (
     <div
       style={{
         minHeight: "100vh",
-        background: "#f3f4f6",
+        background: "#f0f2f5",
         fontFamily: "'Noto Sans JP', sans-serif",
       }}
     >
       {/* Header */}
       <header
         style={{
-          background: "#fff",
-          borderBottom: "1px solid #e5e7eb",
+          background: "#06c755",
           padding: "0 24px",
           height: 56,
           display: "flex",
           alignItems: "center",
           gap: 12,
-          boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
         }}
       >
         <div
           style={{
-            width: 32, height: 32, background: "#06c755", borderRadius: 8,
+            width: 34, height: 34, background: "rgba(255,255,255,0.2)", borderRadius: 10,
             display: "flex", alignItems: "center", justifyContent: "center",
           }}
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff">
             <path d="M12 2C6.48 2 2 5.92 2 10.8c0 3.16 1.76 5.95 4.44 7.68L5.5 22l4.12-2.07c.77.21 1.56.32 2.38.32 5.52 0 10-3.92 10-8.8C22 5.92 17.52 2 12 2z" />
           </svg>
         </div>
         <div>
-          <h1 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#111" }}>
+          <h1 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "#fff" }}>
             LINE 友だち追加広告 プレビューツール
           </h1>
-          <p style={{ margin: 0, fontSize: 11, color: "#9ca3af" }}>
-            クリエイティブの見た目を確認できます
+          <p style={{ margin: 0, fontSize: 11, color: "rgba(255,255,255,0.75)" }}>
+            クリエイティブの見た目をスマホで確認できます
           </p>
         </div>
       </header>
@@ -99,12 +102,12 @@ export default function App() {
       {/* Main layout */}
       <main
         style={{
-          maxWidth: 1200,
+          maxWidth: 1100,
           margin: "0 auto",
-          padding: 24,
+          padding: "24px 20px",
           display: "grid",
-          gridTemplateColumns: "380px 1fr",
-          gap: 24,
+          gridTemplateColumns: "360px 1fr",
+          gap: 20,
           alignItems: "start",
         }}
       >
@@ -114,14 +117,20 @@ export default function App() {
             background: "#fff",
             borderRadius: 12,
             border: "1px solid #e5e7eb",
-            padding: 24,
-            boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+            padding: 22,
+            boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+            position: "sticky",
+            top: 20,
           }}
         >
-          <h2 style={{ margin: "0 0 20px", fontSize: 15, fontWeight: 700, color: "#111" }}>
+          <h2 style={{ margin: "0 0 18px", fontSize: 14, fontWeight: 700, color: "#111", display: "flex", alignItems: "center", gap: 6 }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#06c755" strokeWidth="2.5" strokeLinecap="round">
+              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
             広告情報を入力
           </h2>
-          <InputForm data={data} onChange={setData} />
+          <InputForm data={data} onChange={setData} mode={activeTab} />
         </div>
 
         {/* Right: Preview panel */}
@@ -130,114 +139,133 @@ export default function App() {
             background: "#fff",
             borderRadius: 12,
             border: "1px solid #e5e7eb",
-            padding: 24,
-            boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+            padding: 22,
+            boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-            <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "#111" }}>
+          {/* Panel header */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
+            <h2 style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "#111", display: "flex", alignItems: "center", gap: 6 }}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#06c755" strokeWidth="2.5" strokeLinecap="round">
+                <rect x="2" y="3" width="20" height="14" rx="2"/>
+                <line x1="8" y1="21" x2="16" y2="21"/>
+                <line x1="12" y1="17" x2="12" y2="21"/>
+              </svg>
               プレビュー
             </h2>
             <button
               onClick={handleDownload}
               disabled={downloading}
               style={{
-                padding: "8px 18px",
-                background: downloading ? "#d1d5db" : "#06c755",
+                padding: "8px 16px",
+                background: downloading ? "#9ca3af" : "#111",
                 color: "#fff",
                 border: "none",
                 borderRadius: 8,
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: 700,
                 cursor: downloading ? "not-allowed" : "pointer",
                 display: "flex",
                 alignItems: "center",
                 gap: 6,
                 fontFamily: "'Noto Sans JP', sans-serif",
+                transition: "background 0.15s",
               }}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round">
                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
                 <polyline points="7 10 12 15 17 10" />
                 <line x1="12" y1="15" x2="12" y2="3" />
               </svg>
-              {downloading ? "作成中..." : "画像ダウンロード"}
+              {downloading ? "処理中..." : "PNG ダウンロード"}
             </button>
           </div>
 
-          {/* Tabs */}
-          <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
-            <button style={tabStyle("sample1")} onClick={() => setActiveTab("sample1")}>
-              サンプル1（カード）
+          {/* Tab switcher */}
+          <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+            <button style={tabStyle("timeline")} onClick={() => setActiveTab("timeline")}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <circle cx="12" cy="5" r="3"/><line x1="12" y1="8" x2="12" y2="21"/>
+              </svg>
+              タイムライン
             </button>
-            <button style={tabStyle("sample2")} onClick={() => setActiveTab("sample2")}>
-              サンプル2（コンパクト）
+            <button style={tabStyle("talklist")} onClick={() => setActiveTab("talklist")}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+              </svg>
+              トークリスト
             </button>
           </div>
 
-          {/* Ad spec info */}
+          {/* Spec badge */}
           <div
             style={{
               background: "#f0fdf4",
               border: "1px solid #bbf7d0",
               borderRadius: 8,
-              padding: "10px 14px",
+              padding: "8px 14px",
               marginBottom: 20,
-              fontSize: 12,
+              fontSize: 11,
               color: "#166534",
               display: "flex",
-              gap: 16,
+              gap: 14,
               flexWrap: "wrap",
+              alignItems: "center",
             }}
           >
-            <span>
-              <strong>表示形式:</strong>{" "}
-              {activeTab === "sample1" ? "タイムライン（カード形式）" : "トークリスト（コンパクト）"}
-            </span>
-            <span>
-              <strong>タイトル:</strong> 最大20文字
-            </span>
-            {activeTab === "sample1" && (
-              <span>
-                <strong>説明文:</strong> 最大75文字
-              </span>
+            {activeTab === "timeline" ? (
+              <>
+                <span style={{ fontWeight: 700 }}>📋 タイムライン（カード）</span>
+                <span>タイトル: 最大<strong>20</strong>文字</span>
+                <span>説明文: 最大<strong>75</strong>文字</span>
+                <span>画像: {data.imageAspect === "square" ? "1,080×1,080px (1:1)" : "1,200×628px (1.91:1)"}</span>
+              </>
+            ) : (
+              <>
+                <span style={{ fontWeight: 700 }}>💬 トークリスト（スモール画像）</span>
+                <span>長いタイトル: 最大<strong>35</strong>文字</span>
+                <span>説明文: <strong>非表示</strong></span>
+                <span>画像: <strong>600×400px (3:2)</strong></span>
+              </>
             )}
           </div>
 
-          {/* Preview with mockup */}
+          {/* Mockup preview */}
           <div
             ref={previewRef}
             style={{
               display: "flex",
               justifyContent: "center",
-              padding: 24,
-              background: "#f3f4f6",
-              borderRadius: 12,
+              padding: "28px 20px",
+              background: "linear-gradient(135deg, #e8edf2 0%, #d8e4f0 100%)",
+              borderRadius: 16,
             }}
           >
-            {activeTab === "sample1" ? (
-              <SmartphoneMockup label="サンプル1">
+            {activeTab === "timeline" ? (
+              <SmartphoneMockup screen="timeline">
                 <AdPreviewSample1 data={data} />
               </SmartphoneMockup>
             ) : (
-              <SmartphoneMockup label="サンプル2">
+              <SmartphoneMockup screen="talklist">
                 <AdPreviewSample2 data={data} />
               </SmartphoneMockup>
             )}
           </div>
 
-          {/* Quick preview without mockup */}
-          <div style={{ marginTop: 24 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: "#6b7280", marginBottom: 12 }}>
-              広告のみプレビュー
+          {/* Ad-only preview strip */}
+          <div style={{ marginTop: 20 }}>
+            <div style={{ fontSize: 12, fontWeight: 600, color: "#9ca3af", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+              <div style={{ flex: 1, height: 1, background: "#e5e7eb" }} />
+              広告カードのみプレビュー
+              <div style={{ flex: 1, height: 1, background: "#e5e7eb" }} />
             </div>
-            <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-              <div>
-                <div style={{ fontSize: 11, color: "#9ca3af", marginBottom: 6 }}>サンプル1 (カード)</div>
+            <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center" }}>
+              <div style={{ border: "1px solid #e5e7eb", borderRadius: 8, overflow: "hidden" }}>
+                <div style={{ fontSize: 10, color: "#9ca3af", padding: "4px 8px", background: "#f9fafb", borderBottom: "1px solid #e5e7eb" }}>タイムライン</div>
                 <AdPreviewSample1 data={data} />
               </div>
-              <div>
-                <div style={{ fontSize: 11, color: "#9ca3af", marginBottom: 6 }}>サンプル2 (コンパクト)</div>
+              <div style={{ border: "1px solid #e5e7eb", borderRadius: 8, overflow: "hidden", maxWidth: 290 }}>
+                <div style={{ fontSize: 10, color: "#9ca3af", padding: "4px 8px", background: "#f9fafb", borderBottom: "1px solid #e5e7eb" }}>トークリスト</div>
                 <AdPreviewSample2 data={data} />
               </div>
             </div>
