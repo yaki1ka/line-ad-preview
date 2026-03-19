@@ -18,6 +18,8 @@ const defaultData: RichMenuData = {
   imageUrl: null,
   cells: defaultCells("3x2"),
   menuTitle: "メニュー",
+  accountName: "",
+  accountIconUrl: null,
 };
 
 const inputStyle: React.CSSProperties = {
@@ -41,19 +43,28 @@ const labelStyle: React.CSSProperties = {
   display: "block",
 };
 
+const SectionLabel = ({ children }: { children: React.ReactNode }) => (
+  <div style={{ fontSize: 12, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 10 }}>
+    {children}
+  </div>
+);
+
+const Divider = () => <hr style={{ border: "none", borderTop: "1px solid #e5e7eb", margin: 0 }} />;
+
 export const RichMenuPage = () => {
   const [data, setData] = useState<RichMenuData>(defaultData);
+  const [showLabels, setShowLabels] = useState(true);
   const [downloading, setDownloading] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
   const bgInputRef = useRef<HTMLInputElement>(null);
+  const iconInputRef = useRef<HTMLInputElement>(null);
 
   const update = (patch: Partial<RichMenuData>) => setData((d) => ({ ...d, ...patch }));
 
   const changeLayout = (layout: RichMenuLayout) => {
     const count = LAYOUT_CELL_COUNT[layout];
-    const currentCells = data.cells;
     const cells = Array.from({ length: count }, (_, i) =>
-      currentCells[i] ?? defaultCells(layout)[i]
+      data.cells[i] ?? defaultCells(layout)[i]
     );
     update({ layout, cells });
   };
@@ -67,6 +78,12 @@ export const RichMenuPage = () => {
     const file = e.target.files?.[0];
     if (!file) return;
     update({ imageUrl: URL.createObjectURL(file) });
+  };
+
+  const handleIconUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    update({ accountIconUrl: URL.createObjectURL(file) });
   };
 
   const handleDownload = async () => {
@@ -115,7 +132,9 @@ export const RichMenuPage = () => {
           top: 20,
           display: "flex",
           flexDirection: "column",
-          gap: 20,
+          gap: 18,
+          maxHeight: "calc(100vh - 100px)",
+          overflowY: "auto",
         }}
       >
         <h2 style={{ margin: 0, fontSize: 14, fontWeight: 700, color: "#111", display: "flex", alignItems: "center", gap: 6 }}>
@@ -126,11 +145,46 @@ export const RichMenuPage = () => {
           リッチメニューを設定
         </h2>
 
+        {/* Account info */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <SectionLabel>LINEアカウント情報</SectionLabel>
+          <div>
+            <label style={labelStyle}>アカウント名</label>
+            <input
+              style={inputStyle}
+              type="text"
+              placeholder="LINEアカウント名"
+              value={data.accountName}
+              onChange={(e) => update({ accountName: e.target.value })}
+              maxLength={30}
+            />
+          </div>
+          <div>
+            <label style={labelStyle}>プロフィールアイコン</label>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              {data.accountIconUrl ? (
+                <img src={data.accountIconUrl} alt="icon" style={{ width: 36, height: 36, borderRadius: "50%", objectFit: "cover", border: "1px solid #e5e7eb" }} />
+              ) : (
+                <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#f3f4f6", border: "1px dashed #d1d5db", display: "flex", alignItems: "center", justifyContent: "center", color: "#9ca3af", fontSize: 20 }}>+</div>
+              )}
+              <button onClick={() => iconInputRef.current?.click()} style={{ padding: "5px 12px", border: "1px solid #d1d5db", borderRadius: 6, background: "#f9fafb", fontSize: 12, cursor: "pointer", color: "#374151" }}>
+                画像を選択
+              </button>
+              {data.accountIconUrl && (
+                <button onClick={() => update({ accountIconUrl: null })} style={{ padding: "5px 10px", border: "1px solid #fca5a5", borderRadius: 6, background: "#fff", fontSize: 12, cursor: "pointer", color: "#ef4444" }}>
+                  削除
+                </button>
+              )}
+              <input ref={iconInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleIconUpload} />
+            </div>
+          </div>
+        </div>
+
+        <Divider />
+
         {/* Layout */}
         <div>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 10 }}>
-            レイアウト
-          </div>
+          <SectionLabel>レイアウト</SectionLabel>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
             {LAYOUTS.map(({ value, label, desc }) => (
               <button
@@ -153,11 +207,11 @@ export const RichMenuPage = () => {
           </div>
         </div>
 
-        <hr style={{ border: "none", borderTop: "1px solid #e5e7eb", margin: 0 }} />
+        <Divider />
 
         {/* Menu title */}
         <div>
-          <label style={labelStyle}>メニュータイトル</label>
+          <SectionLabel>メニュータイトル</SectionLabel>
           <input
             style={inputStyle}
             type="text"
@@ -168,23 +222,14 @@ export const RichMenuPage = () => {
           <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 4 }}>最大14文字</div>
         </div>
 
-        <hr style={{ border: "none", borderTop: "1px solid #e5e7eb", margin: 0 }} />
+        <Divider />
 
         {/* Background image */}
         <div>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 10 }}>
-            背景画像（任意）
-          </div>
+          <SectionLabel>背景画像（任意）</SectionLabel>
           <div
             onClick={() => bgInputRef.current?.click()}
-            style={{
-              border: "2px dashed #d1d5db",
-              borderRadius: 8,
-              padding: 12,
-              textAlign: "center",
-              cursor: "pointer",
-              background: "#f9fafb",
-            }}
+            style={{ border: "2px dashed #d1d5db", borderRadius: 8, padding: 12, textAlign: "center", cursor: "pointer", background: "#f9fafb" }}
             onMouseOver={(e) => (e.currentTarget.style.borderColor = "#06c755")}
             onMouseOut={(e) => (e.currentTarget.style.borderColor = "#d1d5db")}
           >
@@ -204,51 +249,55 @@ export const RichMenuPage = () => {
             )}
           </div>
           {data.imageUrl && (
-            <button
-              onClick={() => update({ imageUrl: null })}
-              style={{ marginTop: 6, padding: "4px 10px", border: "1px solid #fca5a5", borderRadius: 6, background: "#fff", fontSize: 12, cursor: "pointer", color: "#ef4444" }}
-            >
+            <button onClick={() => update({ imageUrl: null })} style={{ marginTop: 6, padding: "4px 10px", border: "1px solid #fca5a5", borderRadius: 6, background: "#fff", fontSize: 12, cursor: "pointer", color: "#ef4444" }}>
               画像を削除
             </button>
           )}
           <input ref={bgInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleBgUpload} />
         </div>
 
-        <hr style={{ border: "none", borderTop: "1px solid #e5e7eb", margin: 0 }} />
+        <Divider />
 
         {/* Per-cell settings */}
         <div>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 10 }}>
-            各マスの設定
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+            <SectionLabel>各マスの設定</SectionLabel>
+            {/* Show labels toggle */}
+            <button
+              onClick={() => setShowLabels((v) => !v)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "4px 10px",
+                border: `1px solid ${showLabels ? "#06c755" : "#d1d5db"}`,
+                borderRadius: 20,
+                background: showLabels ? "#f0fdf4" : "#f9fafb",
+                cursor: "pointer",
+                fontSize: 11,
+                fontWeight: 700,
+                color: showLabels ? "#16a34a" : "#6b7280",
+                fontFamily: "'Noto Sans JP', sans-serif",
+              }}
+            >
+              <div style={{
+                width: 28, height: 16, borderRadius: 8,
+                background: showLabels ? "#06c755" : "#d1d5db",
+                position: "relative", transition: "background 0.2s",
+              }}>
+                <div style={{
+                  position: "absolute", top: 2, left: showLabels ? 14 : 2, width: 12, height: 12,
+                  borderRadius: "50%", background: "#fff", transition: "left 0.2s",
+                }} />
+              </div>
+              プレビューに表示
+            </button>
           </div>
 
           {/* Grid preview of cell order */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: `repeat(${cols}, 1fr)`,
-              gap: 4,
-              marginBottom: 14,
-              padding: 6,
-              background: "#f3f4f6",
-              borderRadius: 8,
-            }}
-          >
+          <div style={{ display: "grid", gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: 4, marginBottom: 12, padding: 6, background: "#f3f4f6", borderRadius: 8 }}>
             {data.cells.map((cell, i) => (
-              <div
-                key={i}
-                style={{
-                  height: rows === 2 ? 30 : 22,
-                  borderRadius: 4,
-                  background: data.imageUrl ? "#9ca3af" : cell.color,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 10,
-                  color: "#fff",
-                  fontWeight: 700,
-                }}
-              >
+              <div key={i} style={{ height: rows === 2 ? 30 : 22, borderRadius: 4, background: data.imageUrl ? "#9ca3af" : cell.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "#fff", fontWeight: 700 }}>
                 {i + 1}
               </div>
             ))}
@@ -266,21 +315,12 @@ export const RichMenuPage = () => {
                   onChange={(e) => updateCell(i, { label: e.target.value })}
                   maxLength={12}
                 />
-                {/* Color picker */}
                 <div style={{ display: "flex", gap: 3, flexShrink: 0 }}>
                   {PRESET_COLORS.slice(0, 5).map((c) => (
                     <button
                       key={c}
                       onClick={() => updateCell(i, { color: c })}
-                      style={{
-                        width: 14,
-                        height: 14,
-                        borderRadius: 3,
-                        background: c,
-                        border: cell.color === c ? "2px solid #111" : "1px solid rgba(0,0,0,0.15)",
-                        cursor: "pointer",
-                        padding: 0,
-                      }}
+                      style={{ width: 14, height: 14, borderRadius: 3, background: c, border: cell.color === c ? "2px solid #111" : "1px solid rgba(0,0,0,0.15)", cursor: "pointer", padding: 0 }}
                     />
                   ))}
                 </div>
@@ -320,7 +360,7 @@ export const RichMenuPage = () => {
           }}
         >
           <div ref={previewRef}>
-            <RichMenuMockup data={data} />
+            <RichMenuMockup data={data} showLabels={showLabels} />
           </div>
 
           <button

@@ -3,33 +3,32 @@ import { LAYOUT_ROWS, LAYOUT_COLS, LAYOUT_CELL_COUNT } from "../types";
 
 interface Props {
   data: RichMenuData;
+  showLabels: boolean;
 }
 
-// LINE rich menu aspect ratio: 2560 × 1686 (large, 2-row)
-// At 294px screen width: large menu height ≈ 194px, small ≈ 97px
-const SCREEN_W = 294; // inner screen width (300px phone - 3px×2 padding)
+// LINE rich menu: 2560×1686 (large/2-row), 2560×843 (small/1-row)
+const SCREEN_W = 294; // inner screen width (300px phone − 3px×2 side padding)
 const LARGE_H = Math.round(SCREEN_W / (2560 / 1686)); // ≈ 194px
-const SMALL_H = Math.round(LARGE_H / 2);              // ≈ 97px
+const SMALL_H = Math.round(LARGE_H / 2);               // ≈ 97px
+const MENU_TITLE_H = 28;
 
-const MENU_TITLE_H = 28; // height of the collapsed handle / title bar
-
-export const RichMenuMockup = ({ data }: Props) => {
+export const RichMenuMockup = ({ data, showLabels }: Props) => {
   const rows = LAYOUT_ROWS[data.layout];
   const cols = LAYOUT_COLS[data.layout];
   const cellCount = LAYOUT_CELL_COUNT[data.layout];
   const menuH = rows === 2 ? LARGE_H : SMALL_H;
 
-  // Chat messages area height = total phone screen - status - header - menuTitleBar - menuGrid
-  // Total screen ≈ 530px (9:16 at 300px phone)
-  const screenH = Math.round(300 * 16 / 9) - 3; // ≈ 530px
-  const chatH = screenH - 50 - 44 - MENU_TITLE_H - menuH - 22;
+  // Fix total phone screen height to 9:16 (≈530px)
+  const screenH = Math.round(300 * 16 / 9) - 3;
+  const chatH = screenH - 50 - 44 - menuH - MENU_TITLE_H - 22;
 
   const cellW = SCREEN_W / cols;
   const cellH = menuH / rows;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      {/* Phone outer shell */}
+    /* Outer: natural height (no flex stretching) */
+    <div style={{ display: "inline-flex", flexDirection: "column" }}>
+      {/* Phone shell */}
       <div
         style={{
           width: 300,
@@ -38,13 +37,12 @@ export const RichMenuMockup = ({ data }: Props) => {
           padding: "0 3px 3px",
           boxShadow: "0 8px 32px rgba(0,0,0,0.28), 0 0 0 1px #333",
           position: "relative",
-          flex: 1,
           display: "flex",
           flexDirection: "column",
         }}
       >
         {/* Side buttons */}
-        <div style={{ position: "absolute", left: -3, top: 90, width: 3, height: 30, background: "#333", borderRadius: "2px 0 0 2px" }} />
+        <div style={{ position: "absolute", left: -3, top: 90,  width: 3, height: 30, background: "#333", borderRadius: "2px 0 0 2px" }} />
         <div style={{ position: "absolute", left: -3, top: 132, width: 3, height: 50, background: "#333", borderRadius: "2px 0 0 2px" }} />
         <div style={{ position: "absolute", left: -3, top: 194, width: 3, height: 50, background: "#333", borderRadius: "2px 0 0 2px" }} />
         <div style={{ position: "absolute", right: -3, top: 140, width: 3, height: 60, background: "#333", borderRadius: "0 2px 2px 0" }} />
@@ -55,7 +53,6 @@ export const RichMenuMockup = ({ data }: Props) => {
             background: "#000",
             borderRadius: 42,
             overflow: "hidden",
-            flex: 1,
             display: "flex",
             flexDirection: "column",
           }}
@@ -104,8 +101,16 @@ export const RichMenuMockup = ({ data }: Props) => {
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round">
                 <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
               </svg>
-              <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(255,255,255,0.3)" }} />
-              <span style={{ color: "#fff", fontWeight: 700, fontSize: 15, fontFamily: "'Noto Sans JP', sans-serif" }}>LINEアカウント名</span>
+              {data.accountIconUrl ? (
+                <img src={data.accountIconUrl} alt="icon" style={{ width: 28, height: 28, borderRadius: "50%", objectFit: "cover", border: "1px solid rgba(255,255,255,0.4)" }} />
+              ) : (
+                <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(255,255,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#fff" }}>
+                  {data.accountName ? data.accountName[0].toUpperCase() : "L"}
+                </div>
+              )}
+              <span style={{ color: "#fff", fontWeight: 700, fontSize: 15, fontFamily: "'Noto Sans JP', sans-serif" }}>
+                {data.accountName || "LINEアカウント名"}
+              </span>
             </div>
             <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
               <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round">
@@ -130,69 +135,25 @@ export const RichMenuMockup = ({ data }: Props) => {
               gap: 6,
             }}
           >
-            {/* Friend message bubble */}
             <div style={{ display: "flex", alignItems: "flex-end", gap: 6 }}>
               <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#dde4ec", flexShrink: 0 }} />
-              <div
-                style={{
-                  background: "#fff",
-                  borderRadius: "0 12px 12px 12px",
-                  padding: "7px 10px",
-                  fontSize: 12,
-                  color: "#111",
-                  maxWidth: "65%",
-                  fontFamily: "'Noto Sans JP', sans-serif",
-                }}
-              >
+              <div style={{ background: "#fff", borderRadius: "0 12px 12px 12px", padding: "7px 10px", fontSize: 12, color: "#111", maxWidth: "65%", fontFamily: "'Noto Sans JP', sans-serif" }}>
                 こんにちは！
               </div>
             </div>
-            {/* User message bubble */}
             <div style={{ display: "flex", justifyContent: "flex-end" }}>
-              <div
-                style={{
-                  background: "#06c755",
-                  borderRadius: "12px 0 12px 12px",
-                  padding: "7px 10px",
-                  fontSize: 12,
-                  color: "#fff",
-                  maxWidth: "65%",
-                  fontFamily: "'Noto Sans JP', sans-serif",
-                }}
-              >
+              <div style={{ background: "#06c755", borderRadius: "12px 0 12px 12px", padding: "7px 10px", fontSize: 12, color: "#fff", maxWidth: "65%", fontFamily: "'Noto Sans JP', sans-serif" }}>
                 よろしくお願いします！
               </div>
             </div>
           </div>
 
-          {/* Rich menu title bar */}
-          <div
-            style={{
-              background: "#fff",
-              height: MENU_TITLE_H,
-              borderTop: "1px solid #e5e7eb",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              padding: "0 10px",
-              flexShrink: 0,
-            }}
-          >
-            <span style={{ fontSize: 11, color: "#555", fontFamily: "'Noto Sans JP', sans-serif", fontWeight: 500 }}>
-              {data.menuTitle || "メニュー"}
-            </span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2" strokeLinecap="round">
-              <polyline points="18 15 12 9 6 15"/>
-            </svg>
-          </div>
-
-          {/* Rich menu grid */}
+          {/* Rich menu grid — title is now BELOW */}
           <div
             style={{
               width: SCREEN_W,
               height: menuH,
               flexShrink: 0,
-              position: "relative",
               overflow: "hidden",
               backgroundImage: data.imageUrl ? `url(${data.imageUrl})` : undefined,
               backgroundSize: "cover",
@@ -221,21 +182,22 @@ export const RichMenuMockup = ({ data }: Props) => {
                     position: "relative",
                   }}
                 >
-                  {cell.label && (
+                  {showLabels && cell.label && (
                     <div
                       style={{
                         position: "absolute",
-                        bottom: 6,
-                        left: 0,
-                        right: 0,
+                        inset: 0,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                         textAlign: "center",
-                        fontSize: Math.max(9, Math.min(12, cellW / 8)),
-                        fontWeight: 700,
+                        fontSize: Math.max(12, Math.min(16, cellW / 7)),
+                        fontWeight: 800,
                         color: data.imageUrl ? "rgba(255,255,255,0.95)" : "#fff",
-                        textShadow: "0 1px 3px rgba(0,0,0,0.5)",
-                        padding: "0 4px",
+                        textShadow: "0 1px 4px rgba(0,0,0,0.6)",
+                        padding: "0 6px",
                         fontFamily: "'Noto Sans JP', sans-serif",
-                        lineHeight: 1.2,
+                        lineHeight: 1.3,
                       }}
                     >
                       {cell.label}
@@ -244,6 +206,26 @@ export const RichMenuMockup = ({ data }: Props) => {
                 </div>
               );
             })}
+          </div>
+
+          {/* Menu title bar — below the grid, text centered */}
+          <div
+            style={{
+              background: "#fff",
+              height: MENU_TITLE_H,
+              borderTop: "1px solid #e5e7eb",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2" strokeLinecap="round" style={{ marginRight: 6 }}>
+              <polyline points="18 15 12 9 6 15"/>
+            </svg>
+            <span style={{ fontSize: 11, color: "#555", fontFamily: "'Noto Sans JP', sans-serif", fontWeight: 500 }}>
+              {data.menuTitle || "メニュー"}
+            </span>
           </div>
 
           {/* Home indicator */}

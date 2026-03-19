@@ -26,6 +26,8 @@ export interface RichMenuData {
   imageUrl: string | null;
   cells: RichMenuCell[];
   menuTitle: string;
+  accountName: string;
+  accountIconUrl: string | null;
 }
 
 /** Number of cells per layout */
