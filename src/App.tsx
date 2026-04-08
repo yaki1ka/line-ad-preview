@@ -64,6 +64,22 @@ export default function App() {
                 {label}
               </NavLink>
             ))}
+            <a
+              href="css-preview.html"
+              style={{
+                padding: "6px 14px",
+                borderRadius: 20,
+                fontSize: 13,
+                fontWeight: 500,
+                color: "rgba(255,255,255,0.85)",
+                background: "rgba(255,255,255,0.12)",
+                textDecoration: "none",
+                transition: "all 0.15s",
+                whiteSpace: "nowrap" as const,
+              }}
+            >
+              🎨 CSS プレビュアー（Lステップ）
+            </a>
           </nav>
         )}
       </header>

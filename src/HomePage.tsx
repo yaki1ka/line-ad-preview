@@ -1,6 +1,16 @@
 import { useNavigate } from "react-router-dom";
 
-const tools = [
+const tools: {
+  to: string;
+  href?: string;
+  label: string;
+  sublabel: string;
+  description: string;
+  icon: React.ReactNode;
+  color: string;
+  bg: string;
+  border: string;
+}[] = [
   {
     to: "/ad-preview",
     label: "友だち追加広告",
@@ -35,6 +45,24 @@ const tools = [
     bg: "#faf5ff",
     border: "#e9d5ff",
   },
+  {
+    to: "",
+    href: "css-preview.html",
+    label: "CSS プレビュアー",
+    sublabel: "🎨 CSS プレビュアー（Lステップ）",
+    description: "Lステップ 回答フォームのカスタムCSS をリアルタイムでプレビューできます",
+    icon: (
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 19l7-7 3 3-7 7-3-3z" />
+        <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+        <path d="M2 2l7.586 7.586" />
+        <circle cx="11" cy="11" r="2" />
+      </svg>
+    ),
+    color: "#f97316",
+    bg: "#fff7ed",
+    border: "#fed7aa",
+  },
 ];
 
 export const HomePage = () => {
@@ -64,10 +92,10 @@ export const HomePage = () => {
 
       {/* Tool cards */}
       <div style={{ display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "center", maxWidth: 700, width: "100%" }}>
-        {tools.map(({ to, label, sublabel, description, icon, color, bg, border }) => (
+        {tools.map(({ to, href, label, sublabel, description, icon, color, bg, border }) => (
           <button
-            key={to}
-            onClick={() => navigate(to)}
+            key={to || href}
+            onClick={() => href ? (window.location.href = href) : navigate(to)}
             style={{
               flex: "1 1 280px",
               maxWidth: 320,
