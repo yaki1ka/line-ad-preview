@@ -8,24 +8,80 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+JP:wght@400;500;700&display=swap');
 
 :root {
-  --bg: #0d1117;
-  --surface: #161b22;
-  --surface2: #21262d;
-  --border: #30363d;
-  --border2: #3d444d;
-  --text: #e6edf3;
-  --text-muted: #7d8590;
-  --text-dim: #484f58;
-  --accent: #58a6ff;
-  --accent2: #388bfd;
-  --green: #56d364;
-  --green2: #3fb950;
-  --yellow: #e3b341;
-  --red: #f85149;
-  --purple: #bc8cff;
+  --bg: #f0f2f5;
+  --surface: #ffffff;
+  --surface2: #f9fafb;
+  --border: #e5e7eb;
+  --border2: #d1d5db;
+  --text: #111827;
+  --text-muted: #6b7280;
+  --text-dim: #9ca3af;
+  --accent: #06c755;
+  --accent2: #059544;
+  --green: #06c755;
+  --green2: #059544;
+  --yellow: #f59e0b;
+  --red: #ef4444;
+  --purple: #7c4de8;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Shared site nav ── */
+.site-nav {
+  background: #06c755;
+  padding: 0 24px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  flex-shrink: 0;
+  font-family: 'Noto Sans JP', -apple-system, sans-serif;
+}
+.site-nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.site-nav-logo-icon {
+  width: 32px;
+  height: 32px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.site-nav-logo-text {
+  font-size: 14px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.2px;
+}
+.site-nav-links {
+  display: flex;
+  gap: 4px;
+  margin-left: 8px;
+}
+.site-nav-link {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.85);
+  background: rgba(255,255,255,0.12);
+  text-decoration: none;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.site-nav-link.active {
+  font-weight: 700;
+  color: #06c755;
+  background: #fff;
+}
 
 body {
   font-family: 'Noto Sans JP', -apple-system, sans-serif;
@@ -91,10 +147,10 @@ body {
 .header-tag {
   font-size: 11px;
   padding: 3px 8px;
-  background: rgba(88,166,255,0.12);
+  background: rgba(6,199,85,0.1);
   color: var(--accent);
   border-radius: 4px;
-  border: 1px solid rgba(88,166,255,0.2);
+  border: 1px solid rgba(6,199,85,0.25);
   font-weight: 500;
 }
 
@@ -199,7 +255,7 @@ body {
 }
 
 .sample-radio-item:hover { background: var(--border); }
-.sample-radio-item.active { background: rgba(88,166,255,0.08); }
+.sample-radio-item.active { background: rgba(6,199,85,0.08); }
 
 .sample-radio-item input[type=radio] {
   display: none;
@@ -510,7 +566,7 @@ body {
   padding: 7px 16px;
   background: var(--green);
   border: none;
-  color: #0d1117;
+  color: #fff;
   border-radius: 7px;
   font-size: 12px;
   font-weight: 700;
@@ -583,6 +639,23 @@ body {
 </style>
 </head>
 <body>
+
+<!-- ── Shared site navigation ── -->
+<nav class="site-nav">
+  <a href="index.html" class="site-nav-logo">
+    <div class="site-nav-logo-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff">
+        <path d="M12 2C6.48 2 2 5.92 2 10.8c0 3.16 1.76 5.95 4.44 7.68L5.5 22l4.12-2.07c.77.21 1.56.32 2.38.32 5.52 0 10-3.92 10-8.8C22 5.92 17.52 2 12 2z"/>
+      </svg>
+    </div>
+    <span class="site-nav-logo-text">LINE プレビューツール</span>
+  </a>
+  <div class="site-nav-links">
+    <a href="index.html#/ad-preview" class="site-nav-link">友だち追加広告</a>
+    <a href="index.html#/rich-menu" class="site-nav-link">リッチメニュー</a>
+    <a href="css-preview.html" class="site-nav-link active">🎨 CSS プレビュアー（Lステップ）</a>
+  </div>
+</nav>
 
 <header class="app-header">
   <div class="logo">
