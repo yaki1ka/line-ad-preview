@@ -1,0 +1,1904 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lステップ 回答フォーム CSS プレビュアー</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+JP:wght@400;500;700&display=swap');
+
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface2: #21262d;
+  --border: #30363d;
+  --border2: #3d444d;
+  --text: #e6edf3;
+  --text-muted: #7d8590;
+  --text-dim: #484f58;
+  --accent: #58a6ff;
+  --accent2: #388bfd;
+  --green: #56d364;
+  --green2: #3fb950;
+  --yellow: #e3b341;
+  --red: #f85149;
+  --purple: #bc8cff;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Noto Sans JP', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Header ── */
+.app-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--purple) 100%);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.logo-text {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.3px;
+}
+
+.logo-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.header-divider { 
+  width: 1px; 
+  height: 24px; 
+  background: var(--border); 
+  margin: 0 4px;
+}
+
+.header-tag {
+  font-size: 11px;
+  padding: 3px 8px;
+  background: rgba(88,166,255,0.12);
+  color: var(--accent);
+  border-radius: 4px;
+  border: 1px solid rgba(88,166,255,0.2);
+  font-weight: 500;
+}
+
+.header-spacer { flex: 1; }
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  transition: all 0.2s;
+}
+
+.status-dot.updating {
+  background: var(--yellow);
+  box-shadow: 0 0 6px var(--yellow);
+  animation: pulse 0.8s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ── Main layout ── */
+.app-main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Editor Panel ── */
+.editor-panel {
+  width: 400px;
+  min-width: 280px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.panel-label {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sample-section {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+  display: flex;
+  flex-direction: column;
+}
+
+.sample-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+  padding: 8px 14px 4px;
+  flex-shrink: 0;
+}
+
+.sample-scroll {
+  overflow-y: auto;
+  max-height: 340px;  /* max-heightはscrollコンテナ自身に設定 */
+}
+
+.sample-group-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 6px 14px 3px;
+}
+
+.sample-radio-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px;
+  cursor: pointer;
+  transition: background 0.1s;
+  user-select: none;
+}
+
+.sample-radio-item:hover { background: var(--border); }
+.sample-radio-item.active { background: rgba(88,166,255,0.08); }
+
+.sample-radio-item input[type=radio] {
+  display: none;
+}
+
+.sample-radio-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--border2);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s;
+}
+
+.sample-radio-item.active .sample-radio-dot {
+  border-color: var(--accent);
+}
+
+.sample-radio-dot::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0;
+  transform: scale(0);
+  transition: all 0.15s;
+}
+
+.sample-radio-item.active .sample-radio-dot::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.sample-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.sample-radio-name {
+  font-size: 12px;
+  color: var(--text-muted);
+  flex: 1;
+  line-height: 1.3;
+}
+
+.sample-radio-item.active .sample-radio-name {
+  color: var(--text);
+}
+
+/* ── カラーカスタマイズ ── */
+.color-section {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.color-section-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-bottom: 7px;
+}
+
+.color-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.color-input-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.color-preview-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid var(--border2);
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+}
+
+.color-preview-box input[type=color] {
+  position: absolute;
+  top: 0; left: 0;
+  width: 200%;
+  height: 200%;
+  border: none;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.color-hex-input {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  padding: 5px 8px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 0;
+}
+
+.color-hex-input:focus { border-color: var(--accent); }
+
+.btn-color-apply {
+  padding: 5px 10px;
+  font-size: 11px;
+  background: var(--accent2);
+  border: none;
+  color: #fff;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 600;
+  transition: all 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-color-apply:hover { background: var(--accent); }
+.btn-color-apply:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-color-reset {
+  padding: 5px 8px;
+  font-size: 11px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: 'Noto Sans JP', sans-serif;
+  transition: all 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-color-reset:hover { background: var(--border); color: var(--text); }
+
+.color-note {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 5px;
+  line-height: 1.4;
+}
+
+.sample-select {
+  display: none; /* 旧selectは非表示 */
+}
+
+.editor-wrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.line-numbers {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 36px;
+  background: var(--surface2);
+  border-right: 1px solid var(--border);
+  padding: 14px 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  text-align: right;
+  padding-right: 8px;
+  overflow: hidden;
+  user-select: none;
+  pointer-events: none;
+}
+
+.css-editor {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  resize: none;
+  background: var(--bg);
+  color: var(--text);
+  border: none;
+  padding: 14px 14px 14px 50px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  line-height: 1.6;
+  outline: none;
+  tab-size: 2;
+  overflow-y: auto;
+}
+
+.css-editor::placeholder {
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.editor-footer {
+  padding: 8px 14px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface2);
+}
+
+.char-count {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  flex: 1;
+}
+
+.btn-sm {
+  padding: 4px 10px;
+  font-size: 11px;
+  border: 1px solid var(--border2);
+  background: var(--surface);
+  color: var(--text-muted);
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: 'Noto Sans JP', sans-serif;
+  transition: all 0.15s;
+}
+
+.btn-sm:hover {
+  background: var(--border);
+  color: var(--text);
+}
+
+/* ── Preview Panel ── */
+.preview-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--surface2);
+}
+
+.preview-toolbar {
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.device-toggle {
+  display: flex;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.device-btn {
+  padding: 5px 12px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'Noto Sans JP', sans-serif;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.device-btn.active {
+  background: var(--accent2);
+  color: #fff;
+  font-weight: 600;
+}
+
+.device-btn:hover:not(.active) { color: var(--text); background: var(--border); }
+
+.size-chip {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--bg);
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+.toolbar-spacer { flex: 1; }
+
+.btn-download {
+  padding: 7px 16px;
+  background: var(--green);
+  border: none;
+  color: #0d1117;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Noto Sans JP', sans-serif;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.btn-download:hover { background: var(--green2); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(86,211,100,0.3); }
+.btn-download:active { transform: translateY(0); box-shadow: none; }
+.btn-download:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.preview-canvas {
+  flex: 1;
+  overflow: auto;
+  padding: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background: 
+    radial-gradient(circle at 20px 20px, var(--border) 1px, transparent 1px),
+    radial-gradient(circle at 20px 20px, var(--border) 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-color: var(--bg);
+}
+
+.iframe-shell {
+  position: relative;
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px var(--border2), 0 20px 60px rgba(0,0,0,0.5);
+  transition: width 0.3s cubic-bezier(0.4,0,0.2,1);
+  background: white;
+}
+
+.iframe-shell.mobile { width: 375px; }
+.iframe-shell.pc { width: 100%; max-width: 960px; }
+
+.preview-iframe {
+  display: block;
+  border: none;
+  width: 100%;
+  transition: height 0.2s ease;
+}
+
+/* device frame decoration */
+.iframe-shell::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--purple));
+  z-index: 1;
+  opacity: 0.7;
+}
+
+/* tooltip */
+.tooltip-hint {
+  position: absolute;
+  bottom: 6px;
+  right: 8px;
+  font-size: 10px;
+  color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="logo">
+    <div class="logo-icon">🎨</div>
+    <div>
+      <div class="logo-text">Lステップ CSS プレビュアー</div>
+      <div class="logo-sub">回答フォームのカスタムCSS リアルタイムプレビュー</div>
+    </div>
+  </div>
+  <div class="header-divider"></div>
+  <span class="header-tag">v1.0</span>
+  <div class="header-spacer"></div>
+  <div class="status-indicator">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusText">準備完了</span>
+  </div>
+</header>
+
+<div class="app-main">
+  <!-- ── Editor ── -->
+  <div class="editor-panel">
+    <div class="panel-label">📝 CSSエディター</div>
+
+    <div class="sample-section">
+      <div class="sample-label">🎨 デザインを選択</div>
+      <div class="sample-scroll" id="sampleScroll">
+        <!-- Lステップ公式 -->
+        <div class="sample-group-label">Lステップ 公式サンプル</div>
+        <label class="sample-radio-item" data-val="1" onclick="selectSample('1')">
+          <div class="sample-radio-dot"></div>
+          <div class="sample-swatch" style="background:#eab4b5;"></div>
+          <span class="sample-radio-name">① 女性/可愛い系（コーチ・コンサル）</span>
+        </label>
+        <label class="sample-radio-item" data-val="2" onclick="selectSample('2')">
+          <div class="sample-radio-dot"></div>
+          <div class="sample-swatch" style="background:#0558B7;"></div>
+          <span class="sample-radio-name">② 男性/スタイリッシュ（コーチ・コンサル）</span>
+        </label>
+        <label class="sample-radio-item" data-val="3" onclick="selectSample('3')">
+          <div class="sample-radio-dot"></div>
+          <div class="sample-swatch" style="background:#8F87EA;"></div>
+          <span class="sample-radio-name">③ 女性/エレガント（コーチ・コンサル）</span>
+        </label>
+        <label class="sample-radio-item" data-val="4" onclick="selectSample('4')">
+          <div class="sample-radio-dot"></div>
+          <div class="sample-swatch" style="background:#FF5E5E;"></div>
+          <span class="sample-radio-name">④ 男女/Z世代（インフルエンサー）</span>
+        </label>
+        <label class="sample-radio-item" data-val="5" onclick="selectSample('5')">
+          <div class="sample-radio-dot"></div>
+          <div class="sample-swatch" style="background:#2180C5;"></div>
+          <span class="sample-radio-name">⑤ 男女/さわやか（教室・クリニック）</span>
+        </label>
+        <label class="sample-radio-item" data-val="6" onclick="selectSample('6')">
+          <div class="sample-radio-dot"></div>
+          <div class="sample-swatch" style="background:#127602;"></div>
+          <span class="sample-radio-name">⑥ 男女/明るい（オンラインサロン）</span>
+        </label>
+        <label class="sample-radio-item" data-val="7" onclick="selectSample('7')">
+          <div class="sample-radio-dot"></div>
+          <div class="sample-swatch" style="background:#0daeff;"></div>
+          <span class="sample-radio-name">⑦ 男性寄り/近未来（インフルエンサー）</span>
+        </label>
+        <label class="sample-radio-item" data-val="8" onclick="selectSample('8')">
+          <div class="sample-radio-dot"></div>
+          <div class="sample-swatch" style="background:#6e789c;"></div>
+          <span class="sample-radio-name">⑧ 男性寄り/シンプル（線が特徴的）</span>
+        </label>
+        <label class="sample-radio-item" data-val="9" onclick="selectSample('9')">
+          <div class="sample-radio-dot"></div>
+          <div class="sample-swatch" style="background:#f19934;"></div>
+          <span class="sample-radio-name">⑨ 男女/子ども系（教室・保育幼稚園）</span>
+        </label>
+        <label class="sample-radio-item" data-val="10" onclick="selectSample('10')">
+          <div class="sample-radio-dot"></div>
+          <div class="sample-swatch" style="background:#003c7c;"></div>
+          <span class="sample-radio-name">⑩ 男性/信頼感（ビジネス系）</span>
+        </label>
+        <label class="sample-radio-item" data-val="11" onclick="selectSample('11')">
+          <div class="sample-radio-dot"></div>
+          <div class="sample-swatch" style="background:#d2826e;"></div>
+          <span class="sample-radio-name">⑪ 女性/ラグジュアリー（美容サロン）</span>
+        </label>
+        <!-- Claude オリジナル -->
+        <div class="sample-group-label" style="margin-top:4px;">Claude オリジナルデザイン</div>
+        <label class="sample-radio-item" data-val="c1" onclick="selectSample('c1')">
+          <div class="sample-radio-dot"></div>
+          <div class="sample-swatch" style="background:#2563eb;"></div>
+          <span class="sample-radio-name">☁ シンプルホワイト（クリーンミニマル）</span>
+        </label>
+        <label class="sample-radio-item" data-val="c2" onclick="selectSample('c2')">
+          <div class="sample-radio-dot"></div>
+          <div class="sample-swatch" style="background:#5a7a5a;"></div>
+          <span class="sample-radio-name">🌿 ナチュラルグリーン（オーガニック）</span>
+        </label>
+        <label class="sample-radio-item" data-val="c3" onclick="selectSample('c3')">
+          <div class="sample-radio-dot"></div>
+          <div class="sample-swatch" style="background:#00d4ff;"></div>
+          <span class="sample-radio-name">🌑 ダークモード（モダン）</span>
+        </label>
+        <label class="sample-radio-item" data-val="c4" onclick="selectSample('c4')">
+          <div class="sample-radio-dot"></div>
+          <div class="sample-swatch" style="background:#c9a84c;"></div>
+          <span class="sample-radio-name">⛩ 和モダン（ネイビーゴールド）</span>
+        </label>
+        <label class="sample-radio-item" data-val="c5" onclick="selectSample('c5')">
+          <div class="sample-radio-dot"></div>
+          <div class="sample-swatch" style="background:#ff6b9d;"></div>
+          <span class="sample-radio-name">🌈 ポップグラデーション（ビタミンカラー）</span>
+        </label>
+        <!-- LISM インスパイア -->
+        <div class="sample-group-label" style="margin-top:4px;">LISM インスパイアデザイン</div>
+        <label class="sample-radio-item" data-val="c6" onclick="selectSample('c6')">
+          <div class="sample-radio-dot"></div>
+          <div class="sample-swatch" style="background:#c4603a;"></div>
+          <span class="sample-radio-name">🏔 テラコッタ＆ストーン（エディトリアル）</span>
+        </label>
+        <label class="sample-radio-item" data-val="c7" onclick="selectSample('c7')">
+          <div class="sample-radio-dot"></div>
+          <div class="sample-swatch" style="background:#101010;"></div>
+          <span class="sample-radio-name">⬜ スイスグリッド（ウルトラミニマル）</span>
+        </label>
+        <label class="sample-radio-item" data-val="c8" onclick="selectSample('c8')">
+          <div class="sample-radio-dot"></div>
+          <div class="sample-swatch" style="background:#0891b2;"></div>
+          <span class="sample-radio-name">🌊 オーシャンデプス（グラデーションレイヤー）</span>
+        </label>
+        <label class="sample-radio-item" data-val="c9" onclick="selectSample('c9')">
+          <div class="sample-radio-dot"></div>
+          <div class="sample-swatch" style="background:#8b3a2a;"></div>
+          <span class="sample-radio-name">🍂 ペーパー＆インク（和紙テクスチャ）</span>
+        </label>
+        <label class="sample-radio-item" data-val="c10" onclick="selectSample('c10')">
+          <div class="sample-radio-dot"></div>
+          <div class="sample-swatch" style="background:#16a34a;"></div>
+          <span class="sample-radio-name">✦ レモングラス（フレッシュジオメトリ）</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- ── カラーカスタマイズ ── -->
+    <div class="color-section">
+      <div class="color-section-label">🎨 メインカラーをカスタマイズ</div>
+      <div class="color-picker-row">
+        <div class="color-input-wrap">
+          <div class="color-preview-box" id="colorPreviewBox" style="background:#2196f3;">
+            <input type="color" id="colorPicker" value="#2196f3" oninput="onColorPickerInput(this.value)">
+          </div>
+        </div>
+        <input type="text" class="color-hex-input" id="colorHexInput" value="#2196f3" maxlength="7"
+               oninput="onColorHexInput(this.value)" placeholder="#rrggbb">
+        <button class="btn-color-apply" id="btnColorApply" onclick="applyColor()" disabled>適用</button>
+        <button class="btn-color-reset" id="btnColorReset" onclick="resetColor()" disabled>元に戻す</button>
+      </div>
+      <div class="color-note" id="colorNote">← デザインを選択すると使用できます</div>
+    </div>
+
+    <div class="editor-wrap">
+      <div class="line-numbers" id="lineNumbers">1</div>
+      <textarea
+        class="css-editor"
+        id="cssEditor"
+        placeholder="/* ここにCSSを貼り付けてください */
+/* 入力するとリアルタイムでプレビューに反映されます */
+
+/* 例）ボタンをピンクに */
+.btn {
+  background: #e91e63;
+  border-radius: 50px;
+}
+
+/* 例）ヘッダー背景をグラデーション */
+.form-top {
+  background: linear-gradient(#ff6b6b, #ffa500);
+}
+
+/* 例）中見出しのスタイル */
+h4.description-md-title {
+  color: #333;
+  border-left: 4px solid #e91e63;
+  padding-left: 12px;
+}"
+        oninput="onCSSInput()"
+        onscroll="syncLineNumbers()"
+      ></textarea>
+    </div>
+
+    <div class="editor-footer">
+      <span class="char-count" id="charCount">0 chars</span>
+      <button class="btn-sm" onclick="clearCSS()">クリア</button>
+      <button class="btn-sm" onclick="copyCSS()">コピー</button>
+    </div>
+  </div>
+
+  <!-- ── Preview ── -->
+  <div class="preview-panel">
+    <div class="preview-toolbar">
+      <div class="device-toggle">
+        <button class="device-btn active" id="btnMobile" onclick="setDevice('mobile')">
+          📱 スマホ
+        </button>
+        <button class="device-btn" id="btnPc" onclick="setDevice('pc')">
+          🖥️ PC
+        </button>
+      </div>
+      <span class="size-chip" id="sizeChip">375px</span>
+      <div class="toolbar-spacer"></div>
+      <button class="btn-download" id="downloadBtn" onclick="downloadPNG()">
+        📸 PNG ダウンロード
+      </button>
+    </div>
+
+    <div class="preview-canvas" id="previewCanvas">
+      <div class="iframe-shell mobile" id="iframeShell">
+        <iframe
+          class="preview-iframe"
+          id="previewFrame"
+          style="height: 2400px;"
+          scrolling="no"
+        ></iframe>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="data/samples.js"></script>
+<script>
+/* ============================================================
+   SAMPLE CSS DATA
+   ============================================================ */
+
+/* ============================================================
+   DATA BRIDGE — samples.js から読み込み
+   （samples.js を <script src> で先に読み込んでおくこと）
+   ============================================================ */
+const SAMPLES      = window.LSTEP_SAMPLES || {};
+const SAMPLE_META  = window.LSTEP_META    || {};
+
+
+/* ============================================================
+   MYFM BASE CSS  - myfm.jpフォーム固有スタイル（Bootstrap以外）
+   ============================================================ */
+const MYFM_BASE_CSS = `
+/* html にも背景色を設定（bodyが短い場合の最終安全網）*/
+html {
+  background-color: #cfd3dc;
+}
+body {
+  font-family: 游ゴシック, YuGothic, ヒラギノ角ゴ Pro, Hiragino Kaku Gothic Pro, メイリオ, Meiryo, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: #666;
+  line-height: 30px;
+  text-align: center;
+  background-color: #cfd3dc;
+}
+strong { font-weight: 700; }
+a, a:hover, a:focus { color: #19b9e7; text-decoration: none; transition: all .3s; }
+h1, h2 { margin-top: 10px; font-size: 38px; font-weight: 500; color: #555; line-height: 50px; }
+h3 { font-size: 22px; font-weight: 500; color: #555; line-height: 30px; }
+img { max-width: 100%; }
+
+/* フォームボックス */
+.form-box { padding-top: 40px; }
+.form-box form { box-shadow: 0 2px 2px 2px rgba(0,0,0,.1); }
+
+/* form-group 内の col-* (float:left) を包含するための clearfix
+   これがないと form-group が高さ0に崩壊し form-bottom の背景が途切れる */
+.form-group::after {
+  content: '';
+  display: table;
+  clear: both;
+}
+
+/* form-editor・form-bottom も clearfix */
+.form-editor::after,
+.form-bottom::after {
+  content: '';
+  display: table;
+  clear: both;
+}
+
+/* ヘッダー部 */
+.form-top {
+  overflow: hidden;
+  padding: 0 25px 15px;
+  background: #fff;
+  border-radius: 4px 4px 0 0;
+  text-align: left;
+}
+.form-top .form-top-left {
+  float: left;
+  min-height: 100px;
+  width: 100%;
+  padding-top: 25px;
+  position: relative;
+  z-index: 1;
+}
+.form-top .form-top-left h3 { width: 75%; margin-top: 0; }
+.form-top .form-top-left p { line-height: 1.5; }
+.form-top .form-top-right {
+  position: absolute;
+  right: 40px;
+  padding-top: 5px;
+  font-size: 66px;
+  color: #ddd;
+  line-height: 100px;
+  text-align: right;
+}
+
+/* フォームボトム — 元のLステッププラットフォームのCSSに合わせる */
+.form-bottom {
+  padding: 25px 25px 30px;
+  background: #eee;
+  border-radius: 0 0 4px 4px;
+  text-align: left;
+  overflow: hidden; /* col-sm-12のfloatをクリア（PC幅でform-bottomが潰れるのを防ぐ） */
+}
+
+/* form-editor も同様にclearfix（col-sm-12はPC幅でfloat:leftになる） */
+.form-editor {
+  overflow: hidden;
+}
+
+/* form-group 内のfloatを明示的にクリア */
+.form-group::after {
+  content: '';
+  display: table;
+  clear: both;
+}
+
+form .form-bottom textarea { height: 100px; }
+form .form-bottom button.btn { min-width: 105px; }
+form .form-bottom .input-error { border-color: #19b9e7; }
+
+/* フィールドセット全体 */
+.fieldsets { /* ユーザーCSSで上書き可能 */ }
+
+/* ヘルプテキスト */
+.help-block { font-size: 1.2rem; line-height: 1; }
+.help-block.help-error { font-weight: 700; }
+
+/* フォーム入力 */
+select, input { font-size: 16px !important; }
+
+/* ラジオ・チェックボックスのラベル */
+.radio label, .radio-inline label, .checkbox label, .checkbox-inline label {
+  padding-left: 25px;
+  cursor: pointer;
+}
+.radio input[type=radio], .radio input[type=checkbox],
+.radio-inline input[type=radio], .radio-inline input[type=checkbox],
+.checkbox input[type=radio], .checkbox input[type=checkbox],
+.checkbox-inline input[type=radio], .checkbox-inline input[type=checkbox] {
+  margin-left: -25px;
+}
+
+/* ====== ラジオボタン カスタムスタイル ====== */
+input[type=radio], .radio input[type=radio], .radio-inline input[type=radio] {
+  position: relative;
+  margin-top: 6px;
+  margin-right: 4px;
+  vertical-align: top;
+  border: none;
+  background-color: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+input[type=radio]:focus, .radio input[type=radio]:focus, .radio-inline input[type=radio]:focus { outline: none; }
+input[type=radio]:before, input[type=radio]:after,
+.radio input[type=radio]:before, .radio input[type=radio]:after,
+.radio-inline input[type=radio]:before, .radio-inline input[type=radio]:after {
+  content: "";
+  display: block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  transition: .24s;
+}
+input[type=radio]:before, .radio input[type=radio]:before, .radio-inline input[type=radio]:before {
+  position: absolute;
+  left: 0;
+  top: -3px;
+  background-color: #2196f3;
+  transform: scale(0);
+}
+input[type=radio]:after, .radio input[type=radio]:after, .radio-inline input[type=radio]:after {
+  position: relative;
+  top: -3px;
+  border: 2px solid #666;
+}
+input[type=radio]:checked:before, .radio input[type=radio]:checked:before, .radio-inline input[type=radio]:checked:before {
+  transform: scale(.5);
+}
+input[type=radio]:checked:after, .radio input[type=radio]:checked:after, .radio-inline input[type=radio]:checked:after {
+  border-color: #2196f3;
+}
+input[type=radio]:disabled:after, input[type=radio]:disabled:checked:after,
+.radio input[type=radio]:disabled:after, .radio input[type=radio]:disabled:checked:after,
+.radio-inline input[type=radio]:disabled:after, .radio-inline input[type=radio]:disabled:checked:after {
+  border-color: #bbb;
+}
+
+/* ====== チェックボックス カスタムスタイル ====== */
+input[type=checkbox], .checkbox input[type=checkbox], .checkbox-inline input[type=checkbox] {
+  position: relative;
+  border: none;
+  margin-bottom: -4px;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+input[type=checkbox]:focus, .checkbox input[type=checkbox]:focus, .checkbox-inline input[type=checkbox]:focus { outline: none; }
+input[type=checkbox]:focus:after, .checkbox input[type=checkbox]:focus:after, .checkbox-inline input[type=checkbox]:focus:after {
+  border-color: #2196f3;
+}
+input[type=checkbox]:after, .checkbox input[type=checkbox]:after, .checkbox-inline input[type=checkbox]:after {
+  content: "";
+  display: block;
+  width: 18px;
+  height: 18px;
+  margin-top: -2px;
+  margin-right: 5px;
+  border: 2px solid #666;
+  transition: .24s;
+}
+input[type=checkbox]:checked:before, .checkbox input[type=checkbox]:checked:before, .checkbox-inline input[type=checkbox]:checked:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 6px;
+  display: table;
+  width: 6px;
+  height: 12px;
+  border: 2px solid #fff;
+  border-top-width: 0;
+  border-left-width: 0;
+  transform: rotate(45deg);
+}
+input[type=checkbox]:checked:after, .checkbox input[type=checkbox]:checked:after, .checkbox-inline input[type=checkbox]:checked:after {
+  background-color: #2196f3;
+  border-color: #2196f3;
+}
+input[type=checkbox]:disabled:after, .checkbox input[type=checkbox]:disabled:after, .checkbox-inline input[type=checkbox]:disabled:after {
+  border-color: #bbb;
+}
+input[type=checkbox]:disabled:checked:after, .checkbox input[type=checkbox]:disabled:checked:after, .checkbox-inline input[type=checkbox]:disabled:checked:after {
+  background-color: #bbb;
+  border-color: transparent;
+}
+
+/* 見出しスタイル */
+.description-md-title {
+  display: inline-block;
+  background-color: #2196f3;
+  color: #fff;
+  padding: 11px 27px;
+  margin: 5px -30px;
+  box-shadow: 1px 1px 1px rgba(0,0,0,.2);
+}
+.description-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* ラベル */
+label.control-label span.label {
+  position: relative;
+  display: inline-block;
+  top: -2px;
+  margin-left: 4px;
+}
+
+/* テキスト折り返し */
+.text-break { word-break: break-all; word-break: break-word; overflow-wrap: break-word; }
+
+/* ラジオ・チェックボックスグループ */
+.radios { margin-top: -.5em; }
+.checkboxes { margin-top: -10px; }
+
+/* レスポンシブ */
+@media (max-width: 767px) {
+  body { background: #eee !important; }
+  .form-box { padding: 0 !important; }
+  .form-box form { box-shadow: none !important; }
+  .form-bottom { padding-bottom: 25px; }
+  form .form-bottom button.btn { margin-bottom: 5px; }
+}
+`;
+
+/* ============================================================
+   FORM HTML - Lステップ 回答フォーム 全要素サンプル
+   ============================================================ */
+const FORM_HTML = `
+<div class="container">
+  <div class="row">
+    <div class="col-sm-10 col-sm-offset-1 col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2 form-box">
+      <form role="form" id="mainform" onsubmit="return false;" class="registration-form">
+        <fieldset class="fieldsets">
+
+          <!-- ▼ ヘッダー部 -->
+          <div class="form-top">
+            <div class="form-top-left">
+              <h3>フォームタイトル</h3>
+              <p>お問い合わせ・ご予約フォームへようこそ。下記フォームに必要事項をご記入のうえ、送信ボタンをクリックしてください。</p>
+            </div>
+            <div class="form-top-right">
+              <i class="glyphicon glyphicon-pencil"></i>
+            </div>
+          </div>
+
+          <!-- ▼ フォームボディ -->
+          <div class="form-bottom">
+            <div class="form-editor">
+
+              <!-- ■ 中見出し（description_md） -->
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <div class="form-text">
+                    <h4 class="description-md-title">中見出し（H4）</h4>
+                    <div class="text-break">中見出しの下に表示される説明文です。セクションの案内やコンテンツの補足情報を記載します。</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ■ 小見出し（description） -->
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <div class="form-text">
+                    <h5 class="description-title">小見出し（H5）</h5>
+                    <div class="text-break">小見出しの下に表示される説明テキストです。フォームの各セクションや項目グループの説明を記載します。</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ■ テキスト入力（1行） -->
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <div class="form-text">
+                    <label class="control-label">
+                      お名前（テキスト入力）
+                      <span class="label label-danger">必須</span>
+                    </label>
+                    <input type="text" class="form-control" placeholder="山田 太郎">
+                    <div class="help-block"><span>20文字以内で入力してください</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ■ テキストエリア（複数行） -->
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <div class="form-text">
+                    <label class="control-label">
+                      ご質問内容（テキストエリア）
+                      <span class="label label-danger">必須</span>
+                    </label>
+                    <textarea class="form-control" placeholder="ご質問やお問い合わせ内容をご記入ください。どんな些細なことでもお気軽にどうぞ。" style="height:100px;"></textarea>
+                    <div class="help-block"><span></span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ■ チェックボックス（複数選択） -->
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <div class="form-text">
+                    <label class="control-label">お問い合わせ内容（チェックボックス）</label>
+                    <div class="checkboxes">
+                      <div class="checkbox">
+                        <label><input type="checkbox"> 商品・サービスについて</label>
+                      </div>
+                      <div class="checkbox">
+                        <label><input type="checkbox" checked> 料金・プランについて</label>
+                      </div>
+                      <div class="checkbox">
+                        <label><input type="checkbox"> 予約・申し込みについて</label>
+                      </div>
+                      <div class="checkbox">
+                        <label><input type="checkbox"> その他</label>
+                      </div>
+                    </div>
+                    <div class="help-block"><span></span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ■ ラジオボタン（単一選択） -->
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <div class="form-text">
+                    <label class="control-label">性別（ラジオボタン）</label>
+                    <div class="radios">
+                      <div class="radio">
+                        <label><input type="radio" name="gender"> 男性</label>
+                      </div>
+                      <div class="radio">
+                        <label><input type="radio" name="gender" checked> 女性</label>
+                      </div>
+                      <div class="radio">
+                        <label><input type="radio" name="gender"> 回答しない</label>
+                      </div>
+                    </div>
+                    <div class="help-block"><span></span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ■ ラジオボタン（横並び・inline） -->
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <div class="form-text">
+                    <label class="control-label">ご年代（ラジオ横並び）</label>
+                    <div class="radios">
+                      <label class="radio-inline"><input type="radio" name="age"> 10代</label>
+                      <label class="radio-inline"><input type="radio" name="age"> 20代</label>
+                      <label class="radio-inline"><input type="radio" name="age" checked> 30代</label>
+                      <label class="radio-inline"><input type="radio" name="age"> 40代</label>
+                      <label class="radio-inline"><input type="radio" name="age"> 50代以上</label>
+                    </div>
+                    <div class="help-block"><span></span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ■ セレクトボックス（プルダウン） -->
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <div class="form-text">
+                    <label class="control-label">返信希望（セレクトボックス）</label>
+                    <select class="form-control">
+                      <option value="">選択してください</option>
+                      <option value="1">必要</option>
+                      <option value="2">不要</option>
+                    </select>
+                    <div class="help-block"><span></span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ■ セレクトボックス（選択済み状態） -->
+              <div class="form-group has-success">
+                <div class="col-sm-12">
+                  <div class="form-text">
+                    <label class="control-label">ご希望コース（入力済み状態の例）</label>
+                    <select class="form-control">
+                      <option value="">選択してください</option>
+                      <option value="1">ライトプラン（月額 ¥3,000）</option>
+                      <option value="2" selected>スタンダードプラン（月額 ¥5,000）</option>
+                      <option value="3">プレミアムプラン（月額 ¥10,000）</option>
+                    </select>
+                    <div class="help-block"><span></span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ■ ファイルアップロード（画像） -->
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <div class="form-text">
+                    <label class="control-label">参考資料を添付してください（画像ファイル）</label>
+                    <div class="text-break" style="font-size:13px; color:#888; margin-bottom:6px;">画像（jpeg, jpg, png, gif, heic）のみ添付できます。<br>画像ファイルを添付できます</div>
+                    <input type="file" accept="image/*" style="display:block; font-size:14px;">
+                    <div class="help-block"><span></span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ■ 日付選択（datepicker） -->
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <div class="form-text">
+                    <label class="control-label">
+                      ご予約希望日（日付選択）
+                      <span class="label label-danger">必須</span>
+                    </label>
+                    <div style="position:relative; display:inline-block; width:100%;">
+                      <input type="date" class="form-control" style="width:160px;" value="2025-06-01">
+                    </div>
+                    <div class="help-block"><span></span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ■ 時間選択 -->
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <div class="form-text">
+                    <label class="control-label">ご希望時間帯</label>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                      <label class="radio-inline"><input type="radio" name="time"> 午前（9:00〜12:00）</label>
+                      <label class="radio-inline"><input type="radio" name="time" checked> 午後（13:00〜17:00）</label>
+                      <label class="radio-inline"><input type="radio" name="time"> 夕方（17:00〜19:00）</label>
+                    </div>
+                    <div class="help-block"><span></span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ■ ファイルアップロード（PDF①） -->
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <div class="form-text">
+                    <label class="control-label">参考資料を添付してください（PDF）何もしない</label>
+                    <div class="text-break" style="font-size:13px; color:#888; margin-bottom:6px;">PDFのみ添付できます。</div>
+                    <input type="file" accept=".pdf" style="display:block; font-size:14px;">
+                    <div class="help-block"><span></span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ■ ファイルアップロード（PDF②） -->
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <div class="form-text">
+                    <label class="control-label">参考資料を添付してください（PDF）友だち情報代入</label>
+                    <div class="text-break" style="font-size:13px; color:#888; margin-bottom:6px;">PDFのみ添付できます。</div>
+                    <input type="file" accept=".pdf" style="display:block; font-size:14px;">
+                    <div class="help-block"><span></span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ■ 入力済みテキスト（has-success状態） -->
+              <div class="form-group has-success">
+                <div class="col-sm-12">
+                  <div class="form-text">
+                    <label class="control-label">
+                      メールアドレス（入力済み・has-success例）
+                      <span class="label label-danger">必須</span>
+                    </label>
+                    <input type="email" class="form-control" value="example@email.com">
+                    <div class="help-block"><span>✓ 正しい形式で入力されています</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ■ 同意チェックボックス -->
+              <div class="form-group">
+                <div class="col-sm-12">
+                  <div class="form-text">
+                    <div class="checkboxes">
+                      <div class="checkbox">
+                        <label>
+                          <input type="checkbox" checked>
+                          <a href="#" target="_blank">プライバシーポリシー</a>に同意します
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ■ 送信ボタン -->
+              <div class="form-group" style="margin-top: 30px;">
+                <div class="col-sm-12">
+                  <button type="submit" class="btn btn-primary btn-block" style="font-size: 18px; padding: 14px;">
+                    送信する
+                  </button>
+                </div>
+              </div>
+
+            </div><!-- /.form-editor -->
+          </div><!-- /.form-bottom -->
+
+        </fieldset>
+      </form>
+    </div>
+  </div>
+</div>
+`;
+
+/* ============================================================
+   IFRAME CONTENT GENERATOR
+   ============================================================ */
+function generateIframeDoc(userCSS) {
+  // ResizeObserver をiframe内に仕込み、コンテンツ高さが変化するたびに
+  // postMessageで親ページに通知する → iframeの高さを自動同期
+  const resizeScript = `
+<script>
+(function(){
+  var lastH = 0;
+  var lastBg = '';
+
+  function notify(){
+    // body.style.minHeight をクリアして純粋なコンテンツ高さを計測
+    document.body.style.minHeight = '';
+    document.documentElement.style.minHeight = '';
+
+    // form-box の下端位置のみで高さを決定
+    // （window.innerHeight は使わない：iframeより背が高くなりbody背景が露出するため）
+    var h = 300;
+    var fb = document.querySelector('.form-box');
+    if (fb) {
+      h = Math.max(fb.offsetTop + fb.offsetHeight, 300);
+    } else {
+      // フォールバック
+      document.body.style.minHeight = '';
+      h = Math.max(document.body.scrollHeight, 300);
+    }
+
+    // 背景色取得（body の計算済み色）
+    var bg = window.getComputedStyle(document.body).backgroundColor;
+
+    // html / body に同じ背景色・minHeight をセット
+    document.documentElement.style.backgroundColor = bg;
+    document.body.style.minHeight = h + 'px';
+
+    // 変化があれば親へ通知
+    if (h !== lastH || bg !== lastBg) {
+      lastH = h;
+      lastBg = bg;
+      window.parent.postMessage({ lstepResize: h, bodyBg: bg }, '*');
+    }
+  }
+
+  notify();
+  window.addEventListener('load', function(){ notify(); setTimeout(notify, 400); });
+  setTimeout(notify, 800);
+  setTimeout(notify, 1800);
+  setTimeout(notify, 3000);
+
+  // form-box のリサイズを監視（body監視は無限ループになるため除外）
+  if (window.ResizeObserver) {
+    var ro = new ResizeObserver(function(){ setTimeout(notify, 60); });
+    var fb = document.querySelector('.form-box');
+    if (fb) ro.observe(fb);
+    var fd = document.querySelector('.form-bottom');
+    if (fd) ro.observe(fd);
+  }
+
+  // 背景色の変化を定期チェック（@importフォント遅延対応）
+  setInterval(function(){
+    var bg = window.getComputedStyle(document.body).backgroundColor;
+    if (bg !== lastBg) { notify(); }
+  }, 500);
+})();
+<\/script>`;
+
+  return `<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css">
+<style id="myfm-base">${MYFM_BASE_CSS}</style>
+<style id="user-css">${userCSS}</style>
+</head>
+<body>
+${FORM_HTML}
+${resizeScript}
+</body>
+</html>`;
+}
+
+/* ============================================================
+   APP LOGIC
+   ============================================================ */
+let debounceTimer = null;
+let currentDevice = 'mobile';
+let iframeReady = false;
+
+const cssEditor = document.getElementById('cssEditor');
+const previewFrame = document.getElementById('previewFrame');
+const iframeShell = document.getElementById('iframeShell');
+const statusDot = document.getElementById('statusDot');
+const statusText = document.getElementById('statusText');
+const charCount = document.getElementById('charCount');
+const sizeChip = document.getElementById('sizeChip');
+const lineNumbers = document.getElementById('lineNumbers');
+
+// Initialize iframe
+function initIframe() {
+  previewFrame.srcdoc = generateIframeDoc('');
+  previewFrame.onload = () => {
+    iframeReady = true;
+    // onload直後は高さが小さいことが多いので、ResizeObserver経由で更新される
+  };
+}
+
+// iframeのResizeObserver + 背景色変化のメッセージを受け取り同期
+window.addEventListener('message', function(e) {
+  if (!e.data || typeof e.data.lstepResize === 'undefined') return;
+  if (e.source !== previewFrame.contentWindow) return;
+
+  const h = e.data.lstepResize;
+  if (h > 100) {
+    previewFrame.style.height = (h + 4) + 'px';
+  }
+
+  // iframe-shell の背景色を body 背景色に合わせる
+  // → body・html がiframe高さを完全に埋めない場合でも背景色が途切れない
+  if (e.data.bodyBg) {
+    const bg = e.data.bodyBg;
+    const isTransparent = bg === 'rgba(0, 0, 0, 0)' || bg === 'transparent';
+    iframeShell.style.background = isTransparent ? 'white' : bg;
+  }
+});
+
+// Fast CSS injection (no iframe reload)
+function injectCSS(css) {
+  if (!iframeReady) return;
+  try {
+    const doc = previewFrame.contentDocument;
+    if (!doc) return;
+    let styleEl = doc.getElementById('user-css');
+    if (!styleEl) {
+      styleEl = doc.createElement('style');
+      styleEl.id = 'user-css';
+      doc.head.appendChild(styleEl);
+    }
+    styleEl.textContent = css;
+
+    // CSS適用直後に背景色を即同期（postMessage到着前の一瞬の色ずれを防ぐ）
+    try {
+      const bg = doc.defaultView.getComputedStyle(doc.body).backgroundColor;
+      const isTransparent = bg === 'rgba(0, 0, 0, 0)' || bg === 'transparent';
+      iframeShell.style.background = isTransparent ? 'white' : bg;
+    } catch(_) {}
+
+    // ResizeObserver経由でheight更新されるが、フォールバックとして
+    setTimeout(adjustHeight, 200);
+  } catch (e) {
+    // iframe not ready, do full reload
+    iframeReady = false;
+    previewFrame.srcdoc = generateIframeDoc(css);
+    previewFrame.onload = () => { iframeReady = true; };
+  }
+}
+
+// adjustHeight: postMessageフォールバック用
+function adjustHeight() {
+  if (!iframeReady) return;
+  try {
+    const doc = previewFrame.contentDocument;
+    if (!doc || !doc.body) return;
+    // offsetTop + offsetHeight = ページ先頭からの絶対位置（min-height非依存）
+    const el = doc.querySelector('.form-box') || doc.querySelector('.container');
+    if (el) {
+      const h = el.offsetTop + el.offsetHeight;
+      if (h > 100) previewFrame.style.height = (h + 12) + 'px';
+    }
+  } catch (e) {}
+}
+
+// Handle CSS input
+function onCSSInput() {
+  const css = cssEditor.value;
+  const lines = css.split('\n').length;
+  charCount.textContent = css.length + ' chars  /  ' + lines + ' lines';
+  updateLineNumbers(lines);
+
+  setStatus('updating');
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    injectCSS(css);
+    setStatus('ok');
+  }, 120);
+}
+
+// Line numbers
+function updateLineNumbers(count) {
+  const nums = [];
+  for (let i = 1; i <= Math.max(count, 1); i++) nums.push(i);
+  lineNumbers.textContent = nums.join('\n');
+}
+
+// Sync line numbers on scroll
+function syncLineNumbers() {
+  lineNumbers.scrollTop = cssEditor.scrollTop;
+}
+
+// Device toggle
+function setDevice(device) {
+  currentDevice = device;
+  if (device === 'mobile') {
+    iframeShell.className = 'iframe-shell mobile';
+    iframeShell.style.width = '';
+    sizeChip.textContent = '375px';
+    document.getElementById('btnMobile').classList.add('active');
+    document.getElementById('btnPc').classList.remove('active');
+  } else {
+    iframeShell.className = 'iframe-shell pc';
+    iframeShell.style.width = '';
+    sizeChip.textContent = '〜 960px';
+    document.getElementById('btnPc').classList.add('active');
+    document.getElementById('btnMobile').classList.remove('active');
+  }
+  setTimeout(adjustHeight, 350);
+}
+
+/* ============================================================
+   SAMPLE METADATA（メインカラー定義）
+   ============================================================ */
+
+/* ============================================================
+   COLOR UTILITIES — HSLベースのカラーリマッピング
+   ============================================================ */
+function hexToHsl(hex) {
+  const r = parseInt(hex.slice(1,3),16)/255;
+  const g = parseInt(hex.slice(3,5),16)/255;
+  const b = parseInt(hex.slice(5,7),16)/255;
+  const max = Math.max(r,g,b), min = Math.min(r,g,b);
+  let h = 0, s = 0;
+  const l = (max + min) / 2;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch(max) {
+      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+      case g: h = ((b - r) / d + 2) / 6; break;
+      case b: h = ((r - g) / d + 4) / 6; break;
+    }
+  }
+  return [h * 360, s * 100, l * 100];
+}
+
+function hslToHex(h, s, l) {
+  h /= 360; s /= 100; l /= 100;
+  let r, g, b;
+  if (s === 0) {
+    r = g = b = l;
+  } else {
+    const hue2rgb = (p, q, t) => {
+      if (t < 0) t += 1; if (t > 1) t -= 1;
+      if (t < 1/6) return p + (q - p) * 6 * t;
+      if (t < 1/2) return q;
+      if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+      return p;
+    };
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    r = hue2rgb(p, q, h + 1/3);
+    g = hue2rgb(p, q, h);
+    b = hue2rgb(p, q, h - 1/3);
+  }
+  return '#' + [r,g,b].map(x => Math.round(x*255).toString(16).padStart(2,'0')).join('');
+}
+
+// CSS内の同系色を新メインカラーのHSLに合わせて一括変換
+function recolorCSS(css, originalHex, newHex) {
+  const [origH] = hexToHsl(originalHex);
+  const [newH, newS] = hexToHsl(newHex);
+  const hueDiff = newH - origH;
+
+  return css.replace(/#([0-9a-fA-F]{6})\b/g, match => {
+    const [h, s, l] = hexToHsl(match);
+    // 彩度が低い（グレー・黒・白系）は変えない
+    if (s < 12) return match;
+    // 色相が離れすぎている色も変えない（±90°以外はスキップ）
+    let dist = Math.abs(h - origH);
+    if (dist > 180) dist = 360 - dist;
+    if (dist > 90) return match;
+    // 色相シフトを適用（彩度・明度は維持）
+    const shifted = (h + hueDiff + 360) % 360;
+    return hslToHex(shifted, s, l);
+  });
+}
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let currentSampleKey = '';
+let originalSampleCSS = ''; // サンプル読み込み時のオリジナルCSS（リセット用）
+let colorModified = false;
+
+/* ============================================================
+   SAMPLE SELECTOR
+   ============================================================ */
+function selectSample(key) {
+  if (!SAMPLES[key]) return;
+
+  // ラジオボタンのUI更新
+  document.querySelectorAll('.sample-radio-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.val === key);
+  });
+
+  currentSampleKey = key;
+  const css = SAMPLES[key];
+  originalSampleCSS = css;
+  colorModified = false;
+
+  cssEditor.value = css;
+  onCSSInput();
+  cssEditor.scrollTop = 0;
+
+  // カラーピッカーをサンプルのメインカラーで初期化
+  const meta = SAMPLE_META[key];
+  if (meta) {
+    updateColorUI(meta.primary);
+    document.getElementById('btnColorApply').disabled = false;
+    document.getElementById('btnColorReset').disabled = true;
+    document.getElementById('colorNote').textContent = 'メインカラーを変更して「適用」を押してください';
+  }
+
+  // アニメーション完了後に再測定
+  setTimeout(() => {
+    const e = { data: { lstepResize: null } };
+    // postMessage経由で更新される
+  }, 2200);
+}
+
+/* ============================================================
+   COLOR PICKER HANDLERS
+   ============================================================ */
+function updateColorUI(hex) {
+  document.getElementById('colorPicker').value = hex;
+  document.getElementById('colorHexInput').value = hex;
+  document.getElementById('colorPreviewBox').style.background = hex;
+}
+
+function onColorPickerInput(hex) {
+  updateColorUI(hex);
+}
+
+function onColorHexInput(val) {
+  const cleaned = val.startsWith('#') ? val : '#' + val;
+  if (/^#[0-9a-fA-F]{6}$/.test(cleaned)) {
+    document.getElementById('colorPicker').value = cleaned;
+    document.getElementById('colorPreviewBox').style.background = cleaned;
+  }
+}
+
+function applyColor() {
+  if (!currentSampleKey) return;
+  const meta = SAMPLE_META[currentSampleKey];
+  if (!meta) return;
+
+  const hexInput = document.getElementById('colorHexInput').value.trim();
+  const newColor = hexInput.startsWith('#') ? hexInput : '#' + hexInput;
+  if (!/^#[0-9a-fA-F]{6}$/.test(newColor)) {
+    document.getElementById('colorNote').textContent = '⚠ 正しいカラーコードを入力してください（例: #ff6b9d）';
+    return;
+  }
+
+  const baseCss = originalSampleCSS;
+  const recolored = recolorCSS(baseCss, meta.primary, newColor);
+
+  cssEditor.value = recolored;
+  onCSSInput();
+
+  colorModified = true;
+  document.getElementById('btnColorReset').disabled = false;
+  document.getElementById('colorNote').textContent = `✓ ${newColor} を適用しました`;
+}
+
+function resetColor() {
+  if (!originalSampleCSS) return;
+  cssEditor.value = originalSampleCSS;
+  onCSSInput();
+  colorModified = false;
+  document.getElementById('btnColorReset').disabled = true;
+  const meta = SAMPLE_META[currentSampleKey];
+  if (meta) updateColorUI(meta.primary);
+  document.getElementById('colorNote').textContent = 'メインカラーを変更して「適用」を押してください';
+}
+
+// Load sample CSS（後方互換 - 旧selectも一応対応）
+function loadSample() {
+  const val = document.getElementById('sampleSelect')?.value;
+  if (val) selectSample(val);
+}
+
+// Clear CSS
+function clearCSS() {
+  cssEditor.value = '';
+  document.getElementById('sampleSelect').value = '';
+  onCSSInput();
+}
+
+// Copy CSS
+function copyCSS() {
+  const css = cssEditor.value;
+  if (!css) return;
+  navigator.clipboard.writeText(css).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = '✓ コピー済';
+    btn.style.color = '#56d364';
+    setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, 1500);
+  });
+}
+
+// Status
+function setStatus(state) {
+  if (state === 'updating') {
+    statusDot.classList.add('updating');
+    statusText.textContent = '更新中...';
+  } else {
+    statusDot.classList.remove('updating');
+    statusText.textContent = '更新完了';
+  }
+}
+
+// Download PNG — iframeの中でhtml2canvasを実行
+async function downloadPNG() {
+  const btn = document.getElementById('downloadBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ 準備中...';
+
+  const iframe = document.getElementById('previewFrame');
+
+  try {
+    const win  = iframe.contentWindow;
+    const doc  = iframe.contentDocument;
+    if (!doc || !win) throw new Error('iframeが準備できていません');
+
+    // ── Step1: html2canvas をiframe内に注入 ──
+    if (!win.html2canvas) {
+      btn.textContent = '⏳ ライブラリ読込...';
+      await new Promise((res, rej) => {
+        const s = doc.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+        s.onload = res;
+        s.onerror = () => rej(new Error('html2canvas の読み込みに失敗しました（ネットワーク確認）'));
+        doc.head.appendChild(s);
+      });
+      await new Promise(r => setTimeout(r, 300));
+    }
+
+    btn.textContent = '⏳ レンダリング中...';
+
+    // ── Step2: アニメーション一時停止・opacity:0 を強制表示 ──
+    const ovr = doc.createElement('style');
+    ovr.id = '_cap_ovr';
+    ovr.textContent = `
+      *, *::before, *::after {
+        animation-play-state: paused !important;
+        animation-duration: 0.001s !important;
+        transition-duration: 0.001s !important;
+      }
+      .form-editor { opacity: 1 !important; transform: none !important; }
+    `;
+    doc.head.appendChild(ovr);
+    await new Promise(r => setTimeout(r, 80));
+
+    // ── Step3: フォームの実高さを測定してiframeを拡張 ──
+    const formEl = doc.querySelector('.form-box') || doc.querySelector('.container') || doc.body;
+    const trueH  = formEl.offsetTop + formEl.offsetHeight;
+    const captureH = Math.max(trueH + 20, 500);
+
+    const savedIframeH = iframe.style.height;
+    iframe.style.height = captureH + 'px';
+
+    // body も同じ高さに揃えて背景色を末端まで表示
+    doc.body.style.minHeight = captureH + 'px';
+    await new Promise(r => setTimeout(r, 120));
+
+    // ── Step4: キャプチャ設定 ──
+    const shellW  = iframeShell.getBoundingClientRect().width || 375;
+    const scale   = currentDevice === 'mobile' ? 2 : 1.5;
+
+    // body全体をキャプチャ（背景色も含めるため）
+    const canvas = await win.html2canvas(doc.body, {
+      allowTaint:    true,
+      useCORS:       true,
+      scale:         scale,
+      logging:       false,
+      scrollX:       0,
+      scrollY:       0,
+      x:             0,
+      y:             0,
+      width:         Math.round(shellW),
+      height:        captureH,
+      windowWidth:   Math.round(shellW),
+      windowHeight:  captureH,
+      backgroundColor: null,   // bodyのbg-colorを使う
+    });
+
+    // ── Step5: クリーンアップ ──
+    doc.getElementById('_cap_ovr')?.remove();
+    doc.body.style.minHeight = '';
+    iframe.style.height = savedIframeH;
+    // postMessageで高さが自動再同期される
+
+    // ── Step6: ダウンロード ──
+    const ts   = new Date().toISOString().slice(0, 10);
+    const link = document.createElement('a');
+    link.download = `lstep-form-${ts}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+
+    btn.textContent   = '✓ DL完了！';
+    btn.style.background = 'var(--accent)';
+    setTimeout(() => {
+      btn.disabled      = false;
+      btn.textContent   = '📸 PNG ダウンロード';
+      btn.style.background = '';
+    }, 2500);
+
+  } catch (err) {
+    console.error('[PNG error]', err);
+    // エラー内容を短くトースト表示
+    btn.textContent = '⚠ ' + (err.message.length > 30 ? err.message.slice(0,30)+'…' : err.message);
+    btn.disabled = false;
+    setTimeout(() => { btn.textContent = '📸 PNG ダウンロード'; }, 4000);
+  }
+}
+
+// Tab key support
+cssEditor.addEventListener('keydown', function(e) {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const start = this.selectionStart;
+    const end = this.selectionEnd;
+    this.value = this.value.substring(0, start) + '  ' + this.value.substring(end);
+    this.selectionStart = this.selectionEnd = start + 2;
+    onCSSInput();
+  }
+});
+
+// Init
+initIframe();
+updateLineNumbers(1);
+</script>
+</body>
+</html>

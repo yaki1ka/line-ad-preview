@@ -8,7 +8,7 @@ interface Props {
 
 export const SmartphoneMockup = ({ children, screen }: Props) => {
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       {/* Phone outer shell */}
       <div
         style={{
@@ -18,6 +18,9 @@ export const SmartphoneMockup = ({ children, screen }: Props) => {
           padding: "0 3px 3px",
           boxShadow: "0 8px 32px rgba(0,0,0,0.28), 0 0 0 1px #333",
           position: "relative",
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
         }}
       >
         {/* Side buttons */}
@@ -32,6 +35,9 @@ export const SmartphoneMockup = ({ children, screen }: Props) => {
             background: "#000",
             borderRadius: 42,
             overflow: "hidden",
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
           }}
         >
           {/* Status bar */}
@@ -117,12 +123,11 @@ export const SmartphoneMockup = ({ children, screen }: Props) => {
             </div>
           </div>
 
-          {/* Content */}
+          {/* Content — flex:1 fills remaining screen height */}
           <div
             style={{
               background: screen === "timeline" ? "#f0f0f0" : "#fff",
-              minHeight: 430,
-              overflowY: "hidden",
+              flex: 1,
             }}
           >
             {screen === "timeline" ? (
@@ -233,17 +238,15 @@ const BottomTabBar = ({ active }: { active: "timeline" | "talklist" }) => {
 
 const TimelineScreen = ({ adCard }: { adCard: ReactNode }) => (
   <div>
-    {/* Dummy post */}
+    {/* Slim dummy post above (avatar + text only, no image) */}
     <div style={{ background: "#fff", marginBottom: 8, padding: "10px 12px" }}>
-      <div style={{ display: "flex", gap: 8 }}>
-        <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#dde4ec", flexShrink: 0 }} />
+      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#dde4ec", flexShrink: 0 }} />
         <div style={{ flex: 1 }}>
-          <div style={{ height: 9, background: "#e5e7eb", borderRadius: 3, width: "40%", marginBottom: 6 }} />
-          <div style={{ height: 7, background: "#f0f0f0", borderRadius: 3, width: "75%", marginBottom: 4 }} />
-          <div style={{ height: 7, background: "#f0f0f0", borderRadius: 3, width: "55%" }} />
+          <div style={{ height: 8, background: "#e5e7eb", borderRadius: 3, width: "45%", marginBottom: 5 }} />
+          <div style={{ height: 7, background: "#f0f0f0", borderRadius: 3, width: "70%" }} />
         </div>
       </div>
-      <div style={{ marginTop: 8, height: 70, background: "#f3f4f6", borderRadius: 6 }} />
     </div>
 
     {/* Ad card */}
@@ -251,13 +254,13 @@ const TimelineScreen = ({ adCard }: { adCard: ReactNode }) => (
       {adCard}
     </div>
 
-    {/* Another dummy post */}
+    {/* Slim dummy post below */}
     <div style={{ background: "#fff", padding: "10px 12px" }}>
-      <div style={{ display: "flex", gap: 8 }}>
-        <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#dde4ec", flexShrink: 0 }} />
+      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#dde4ec", flexShrink: 0 }} />
         <div style={{ flex: 1 }}>
-          <div style={{ height: 9, background: "#e5e7eb", borderRadius: 3, width: "50%", marginBottom: 6 }} />
-          <div style={{ height: 7, background: "#f0f0f0", borderRadius: 3, width: "65%" }} />
+          <div style={{ height: 8, background: "#e5e7eb", borderRadius: 3, width: "50%", marginBottom: 5 }} />
+          <div style={{ height: 7, background: "#f0f0f0", borderRadius: 3, width: "60%" }} />
         </div>
       </div>
     </div>

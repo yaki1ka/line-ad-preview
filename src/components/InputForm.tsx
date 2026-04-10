@@ -1,21 +1,20 @@
 import { useRef } from "react";
 import type { ChangeEvent } from "react";
 import type { AdData } from "../types";
-import { TITLE_MAX, LONG_TITLE_MAX, DESC_MAX } from "../types";
+import { TITLE_MAX, DESC_MAX } from "../types";
 
 interface Props {
   data: AdData;
   onChange: (data: AdData) => void;
-  /** Which ad format is being previewed */
-  mode: "timeline" | "talklist";
 }
 
 const countChars = (str: string) => [...str].length;
 
-const CharCount = ({ current, max }: { current: number; max: number }) => {
+const CharCount = ({ current, max, warnAt }: { current: number; max: number; warnAt?: number }) => {
   const over = current > max;
+  const warn = !over && warnAt !== undefined && current > warnAt;
   return (
-    <span style={{ fontSize: 11, color: over ? "#ef4444" : "#9ca3af", fontWeight: over ? 700 : 400 }}>
+    <span style={{ fontSize: 11, color: over ? "#ef4444" : warn ? "#f59e0b" : "#9ca3af", fontWeight: over || warn ? 700 : 400 }}>
       {current}/{max}文字
     </span>
   );
@@ -44,26 +43,22 @@ const labelStyle: React.CSSProperties = {
   marginBottom: 6,
 };
 
-export const InputForm = ({ data, onChange, mode }: Props) => {
+export const InputForm = ({ data, onChange }: Props) => {
   const imageInputRef = useRef<HTMLInputElement>(null);
   const iconInputRef = useRef<HTMLInputElement>(null);
-
-  const titleMax = mode === "talklist" ? LONG_TITLE_MAX : TITLE_MAX;
 
   const update = (patch: Partial<AdData>) => onChange({ ...data, ...patch });
 
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const url = URL.createObjectURL(file);
-    update({ imageUrl: url });
+    update({ imageUrl: URL.createObjectURL(file) });
   };
 
   const handleIconUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const url = URL.createObjectURL(file);
-    update({ brandIconUrl: url });
+    update({ brandIconUrl: URL.createObjectURL(file) });
   };
 
   const titleCount = countChars(data.title);
@@ -77,21 +72,19 @@ export const InputForm = ({ data, onChange, mode }: Props) => {
           ブランド情報
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          {/* Brand name */}
           <div>
             <label style={labelStyle}>
-              <span>ブランド名 <span style={{ color: "#ef4444" }}>*</span></span>
+              <span>LINEアカウント名 <span style={{ color: "#ef4444" }}>*</span></span>
             </label>
             <input
               style={inputStyle}
               type="text"
-              placeholder="例: ゴールドガーデン"
+              placeholder="LINEアカウント名"
               value={data.brandName}
               onChange={(e) => update({ brandName: e.target.value })}
               maxLength={30}
             />
           </div>
-          {/* Brand icon */}
           <div>
             <label style={labelStyle}>
               <span>ブランドアイコン</span>
@@ -99,36 +92,15 @@ export const InputForm = ({ data, onChange, mode }: Props) => {
             </label>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               {data.brandIconUrl ? (
-                <img
-                  src={data.brandIconUrl}
-                  alt="icon"
-                  style={{ width: 40, height: 40, borderRadius: "50%", objectFit: "cover", border: "1px solid #e5e7eb" }}
-                />
+                <img src={data.brandIconUrl} alt="icon" style={{ width: 40, height: 40, borderRadius: "50%", objectFit: "cover", border: "1px solid #e5e7eb" }} />
               ) : (
-                <div
-                  style={{
-                    width: 40, height: 40, borderRadius: "50%", background: "#f3f4f6",
-                    border: "1px dashed #d1d5db", display: "flex", alignItems: "center",
-                    justifyContent: "center", color: "#9ca3af", fontSize: 20,
-                  }}
-                >
-                  +
-                </div>
+                <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#f3f4f6", border: "1px dashed #d1d5db", display: "flex", alignItems: "center", justifyContent: "center", color: "#9ca3af", fontSize: 20 }}>+</div>
               )}
-              <button
-                onClick={() => iconInputRef.current?.click()}
-                style={{
-                  padding: "6px 14px", border: "1px solid #d1d5db", borderRadius: 6,
-                  background: "#f9fafb", fontSize: 13, cursor: "pointer", color: "#374151",
-                }}
-              >
+              <button onClick={() => iconInputRef.current?.click()} style={{ padding: "6px 14px", border: "1px solid #d1d5db", borderRadius: 6, background: "#f9fafb", fontSize: 13, cursor: "pointer", color: "#374151" }}>
                 画像を選択
               </button>
               {data.brandIconUrl && (
-                <button
-                  onClick={() => update({ brandIconUrl: null })}
-                  style={{ padding: "6px 10px", border: "1px solid #fca5a5", borderRadius: 6, background: "#fff", fontSize: 13, cursor: "pointer", color: "#ef4444" }}
-                >
+                <button onClick={() => update({ brandIconUrl: null })} style={{ padding: "6px 10px", border: "1px solid #fca5a5", borderRadius: 6, background: "#fff", fontSize: 13, cursor: "pointer", color: "#ef4444" }}>
                   削除
                 </button>
               )}
@@ -152,8 +124,6 @@ export const InputForm = ({ data, onChange, mode }: Props) => {
               <span>広告画像 <span style={{ color: "#ef4444" }}>*</span></span>
               <span style={{ fontSize: 11, color: "#9ca3af" }}>正方形 or 横長</span>
             </label>
-
-            {/* Aspect ratio selector */}
             <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
               {(["square", "landscape"] as const).map((asp) => (
                 <button
@@ -168,64 +138,39 @@ export const InputForm = ({ data, onChange, mode }: Props) => {
                   }}
                 >
                   {asp === "square" ? (
-                    <>
-                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="1" y="1" width="12" height="12" rx="1" /></svg>
-                      正方形 (1:1)
-                    </>
+                    <><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="1" y="1" width="12" height="12" rx="1" /></svg>正方形 (1:1)</>
                   ) : (
-                    <>
-                      <svg width="20" height="12" viewBox="0 0 20 12" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="1" y="1" width="18" height="10" rx="1" /></svg>
-                      横長 (1.91:1)
-                    </>
+                    <><svg width="20" height="12" viewBox="0 0 20 12" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="1" y="1" width="18" height="10" rx="1" /></svg>横長 (1.91:1)</>
                   )}
                 </button>
               ))}
             </div>
-
-            {/* Upload area */}
             <div
               onClick={() => imageInputRef.current?.click()}
-              style={{
-                border: "2px dashed #d1d5db", borderRadius: 8, padding: 16, textAlign: "center",
-                cursor: "pointer", background: "#f9fafb", transition: "border-color 0.2s",
-              }}
+              style={{ border: "2px dashed #d1d5db", borderRadius: 8, padding: 16, textAlign: "center", cursor: "pointer", background: "#f9fafb", transition: "border-color 0.2s" }}
               onMouseOver={(e) => (e.currentTarget.style.borderColor = "#06c755")}
               onMouseOut={(e) => (e.currentTarget.style.borderColor = "#d1d5db")}
             >
               {data.imageUrl ? (
                 <div style={{ position: "relative" }}>
-                  <img
-                    src={data.imageUrl}
-                    alt="preview"
-                    style={{
-                      maxWidth: "100%", maxHeight: 120, objectFit: "contain",
-                      borderRadius: 6, display: "block", margin: "0 auto",
-                    }}
-                  />
+                  <img src={data.imageUrl} alt="preview" style={{ maxWidth: "100%", maxHeight: 120, objectFit: "contain", borderRadius: 6, display: "block", margin: "0 auto" }} />
                   <div style={{ fontSize: 12, color: "#6b7280", marginTop: 8 }}>クリックして変更</div>
                 </div>
               ) : (
                 <div style={{ color: "#9ca3af" }}>
                   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ margin: "0 auto 8px" }}>
-                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-                    <polyline points="17 8 12 3 7 8" />
-                    <line x1="12" y1="3" x2="12" y2="15" />
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" />
                   </svg>
                   <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>クリックして画像をアップロード</div>
                   <div style={{ fontSize: 11 }}>JPG, PNG, GIF 対応</div>
                   <div style={{ fontSize: 11, marginTop: 2 }}>
-                    {mode === "talklist"
-                      ? "600×400px (3:2) 推奨"
-                      : "正方形: 1,080×1,080px / 横長: 1,200×628px 推奨"}
+                    {data.imageAspect === "square" ? "1,080×1,080px (1:1) 推奨" : "1,200×628px (1.91:1) 推奨"}
                   </div>
                 </div>
               )}
             </div>
             {data.imageUrl && (
-              <button
-                onClick={(e) => { e.stopPropagation(); update({ imageUrl: null }); }}
-                style={{ marginTop: 6, padding: "4px 10px", border: "1px solid #fca5a5", borderRadius: 6, background: "#fff", fontSize: 12, cursor: "pointer", color: "#ef4444" }}
-              >
+              <button onClick={(e) => { e.stopPropagation(); update({ imageUrl: null }); }} style={{ marginTop: 6, padding: "4px 10px", border: "1px solid #fca5a5", borderRadius: 6, background: "#fff", fontSize: 12, cursor: "pointer", color: "#ef4444" }}>
                 画像を削除
               </button>
             )}
@@ -235,67 +180,42 @@ export const InputForm = ({ data, onChange, mode }: Props) => {
           {/* Title */}
           <div>
             <label style={labelStyle}>
-              <span>
-                {mode === "talklist" ? "長いタイトル" : "タイトル"}
-                {" "}<span style={{ color: "#ef4444" }}>*</span>
-              </span>
-              <CharCount current={titleCount} max={titleMax} />
+              <span>タイトル <span style={{ color: "#ef4444" }}>*</span></span>
+              <CharCount current={titleCount} max={TITLE_MAX} />
             </label>
             <input
-              style={{
-                ...inputStyle,
-                borderColor: titleCount > titleMax ? "#ef4444" : "#d1d5db",
-              }}
+              style={{ ...inputStyle, borderColor: titleCount > TITLE_MAX ? "#ef4444" : "#d1d5db" }}
               type="text"
-              placeholder="タイトルがここに表示されます"
               value={data.title}
               onChange={(e) => update({ title: e.target.value })}
             />
-            {titleCount > titleMax && (
+            {titleCount > TITLE_MAX && (
               <div style={{ fontSize: 11, color: "#ef4444", marginTop: 4 }}>
-                {titleCount - titleMax}文字超過しています
+                {titleCount - TITLE_MAX}文字超過しています
               </div>
             )}
           </div>
 
-          {/* Description (timeline only) */}
-          {mode === "timeline" ? (
-            <div>
-              <label style={labelStyle}>
-                <span>説明文</span>
-                <CharCount current={descCount} max={DESC_MAX} />
-              </label>
-              <textarea
-                style={{
-                  ...inputStyle,
-                  resize: "vertical",
-                  minHeight: 80,
-                  borderColor: descCount > DESC_MAX ? "#ef4444" : "#d1d5db",
-                }}
-                placeholder="説明文がここに表示されます"
-                value={data.description}
-                onChange={(e) => update({ description: e.target.value })}
-              />
-              {descCount > DESC_MAX && (
-                <div style={{ fontSize: 11, color: "#ef4444", marginTop: 4 }}>
-                  {descCount - DESC_MAX}文字超過しています
-                </div>
-              )}
+          {/* Description */}
+          <div>
+            <label style={labelStyle}>
+              <span>説明文 <span style={{ color: "#ef4444" }}>*</span></span>
+              <CharCount current={descCount} max={DESC_MAX} />
+            </label>
+            <textarea
+              style={{ ...inputStyle, resize: "vertical", minHeight: 80, borderColor: descCount > DESC_MAX ? "#ef4444" : "#d1d5db" }}
+              value={data.description}
+              onChange={(e) => update({ description: e.target.value })}
+            />
+            {descCount > DESC_MAX && (
+              <div style={{ fontSize: 11, color: "#ef4444", marginTop: 4 }}>
+                {descCount - DESC_MAX}文字超過しています
+              </div>
+            )}
+            <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 4 }}>
+              ※ タイムラインのみ表示。トークリストには表示されません
             </div>
-          ) : (
-            <div
-              style={{
-                background: "#f9fafb",
-                border: "1px solid #e5e7eb",
-                borderRadius: 6,
-                padding: "10px 12px",
-                fontSize: 12,
-                color: "#9ca3af",
-              }}
-            >
-              ※ トークリスト形式では説明文は表示されません
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </div>
