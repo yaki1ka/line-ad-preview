@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - 'claude/line-ad-preview-tool-uhWfT'
+      - 'claude/line-ad-preview-tool-eeHdm'
   workflow_dispatch:
 
 permissions:
